@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>坪山区青春小店消费图鉴</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            overflow: hidden;
+        }
+        
+        /* 桌面端布局 */
+        .desktop-layout {
+            display: flex;
+            height: 100vh;
+        }
+        
+        /* 手机端布局 */
+        .mobile-layout {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        /* 地图容器 */
+        .map-container {
+            flex: 1;
+            overflow: auto;
+            position: relative;
+            background: #333;
+        }
+        .map-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        #mapImage {
+            display: block;
+            max-width: 100%;
+        }
+        
+        /* 地标标记 */
+        .marker {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            border: 3px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .marker:hover {
+            transform: translate(-50%, -50%) scale(1.15);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .marker.active {
+            transform: translate(-50%, -50%) scale(1.2);
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.5);
+        }
+        .marker-number {
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        /* 侧边栏 */
+        .sidebar {
+            width: 360px;
+            background: white;
+            border-left: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .sidebar-header {
+            padding: 24px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .sidebar-header h1 {
+            font-size: 20px;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+        .sidebar-header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        /* 手机端顶部栏 */
+        .mobile-header {
+            display: none;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .mobile-header h1 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        .mobile-header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        .mobile-stats {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+        }
+        .mobile-stat {
+            font-size: 12px;
+        }
+        
+        /* 筛选标签 */
+        .filter-tabs {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .filter-tab {
+            padding: 6px 14px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #4b5563;
+        }
+        .filter-tab:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        .filter-tab.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+        
+        /* 店铺列表 */
+        .shop-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+        .shop-item {
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .shop-item:hover {
+            background: #f0f3ff;
+            transform: translateX(4px);
+        }
+        .shop-item.active {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+        .shop-item-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .shop-item-number {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .shop-item-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            flex: 1;
+        }
+        .shop-item-category {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #e0f2fe;
+            color: #0369a1;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .shop-item-desc {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.5;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        /* 弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* 图片轮播 */
+        .image-slider {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            background: #f3f4f6;
+        }
+        .slider-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        .slider-image.active {
+            display: block;
+        }
+        .slider-nav {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+        }
+        .slider-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .slider-dot.active {
+            background: white;
+            width: 24px;
+            border-radius: 4px;
+        }
+        .slider-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+        .slider-arrow:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+        .slider-arrow.prev { left: 12px; }
+        .slider-arrow.next { right: 12px; }
+        
+        /* 弹窗内容 */
+        .modal-content {
+            padding: 24px;
+        }
+        .modal-header {
+            margin-bottom: 20px;
+        }
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        .modal-categories {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .modal-category {
+            padding: 5px 14px;
+            background: #f0f3ff;
+            color: #667eea;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .modal-description {
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .modal-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .modal-info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .modal-info-item:last-child {
+            margin-bottom: 0;
+        }
+        .modal-info-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .modal-info-text {
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.6;
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.95);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        .modal-close:hover {
+            background: white;
+            transform: rotate(90deg);
+        }
+        
+        /* 导航按钮 */
+        .nav-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .nav-button:active {
+            transform: translateY(0);
+        }
+        
+        /* 统计 */
+        .stats {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+        
+        /* 手机端店铺列表项 */
+        .mobile-shop-list {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+        
+        /* 手机端底部导航栏 */
+        .mobile-bottom-nav {
+            display: none;
+            padding: 12px 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            gap: 12px;
+        }
+        .mobile-nav-btn {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .mobile-nav-btn.secondary {
+            background: #f0f3ff;
+            color: #667eea;
+        }
+        
+        /* 响应式布局 - 平板 */
+        @media screen and (max-width: 1024px) {
+            .desktop-layout {
+                display: flex;
+            }
+            .sidebar {
+                width: 300px;
+            }
+        }
+        
+        /* 响应式布局 - 手机 */
+        @media screen and (max-width: 768px) {
+            .desktop-layout {
+                display: none !important;
+            }
+            .mobile-layout {
+                display: flex !important;
+            }
+            
+            .mobile-header {
+                display: block;
+            }
+            
+            .map-container {
+                height: 45vh;
+                flex: none;
+            }
+            
+            .filter-tabs {
+                padding: 10px 12px;
+            }
+            
+            .filter-tab {
+                padding: 5px 12px;
+                font-size: 11px;
+            }
+            
+            .mobile-shop-list {
+                display: block;
+            }
+            
+            .shop-list {
+                display: none;
+            }
+            
+            .stats {
+                display: none;
+            }
+            
+            .mobile-bottom-nav {
+                display: flex;
+            }
+            
+            .modal {
+                max-height: 85vh;
+                border-radius: 20px 20px 0 0;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                max-width: 100%;
+                animation: slideUpModal 0.3s ease;
+            }
+            @keyframes slideUpModal {
+                from { transform: translateY(100%); }
+                to { transform: translateY(0); }
+            }
+            
+            .modal-overlay {
+                padding: 0;
+                align-items: flex-end;
+            }
+            
+            .image-slider {
+                height: 220px;
+            }
+            
+            .modal-content {
+                padding: 20px;
+                max-height: calc(85vh - 220px);
+                overflow-y: auto;
+            }
+            
+            .modal-title {
+                font-size: 18px;
+            }
+            
+            .marker {
+                width: 32px;
+                height: 32px;
+            }
+            .marker-number {
+                font-size: 11px;
+            }
+        }
+        
+        /* 小手机 */
+        @media screen and (max-width: 375px) {
+            .mobile-header h1 {
+                font-size: 16px;
+            }
+            .mobile-header p {
+                font-size: 11px;
+            }
+            .shop-item {
+                padding: 12px 14px;
+            }
+            .shop-item-name {
+                font-size: 13px;
+            }
+            .modal-content {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 桌面端布局 -->
+    <div class="desktop-layout">
+        <div class="map-container">
+            <div class="map-wrapper" id="mapWrapper">
+                <img id="mapImage" src="坪山区青春小店消费图鉴.jpg" alt="坪山区青春小店消费图鉴">
+            </div>
+        </div>
+        
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>🌸 青春小店</h1>
+                <p>坪山区消费图鉴 - 发现身边的美好</p>
+            </div>
+            
+            <div class="filter-tabs" id="filterTabs">
+                <div class="filter-tab active" data-category="all">全部</div>
+            </div>
+            
+            <div class="shop-list" id="shopList"></div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalShops">0</div>
+                    <div class="stat-label">家小店</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalCats">0</div>
+                    <div class="stat-label">个分类</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 手机端布局 -->
+    <div class="mobile-layout">
+        <div class="mobile-header">
+            <h1>🌸 青春小店</h1>
+            <p>坪山区消费图鉴 - 发现身边的美好</p>
+            <div class="mobile-stats">
+                <span class="mobile-stat">🏪 <span id="mobileTotalShops">0</span> 家小店</span>
+                <span class="mobile-stat">📂 <span id="mobileTotalCats">0</span> 个分类</span>
+            </div>
+        </div>
+        
+        <div class="map-container">
+            <div class="map-wrapper" id="mobileMapWrapper">
+                <img id="mobileMapImage" src="坪山区青春小店消费图鉴.jpg" alt="坪山区青春小店消费图鉴">
+            </div>
+        </div>
+        
+        <div class="filter-tabs" id="mobileFilterTabs">
+            <div class="filter-tab active" data-category="all">全部</div>
+        </div>
+        
+        <div class="mobile-shop-list" id="mobileShopList"></div>
+        
+        <div class="mobile-bottom-nav">
+            <button class="mobile-nav-btn secondary" onclick="scrollToTop()">↑ 返回顶部</button>
+            <button class="mobile-nav-btn" onclick="toggleMapList()">📋 <span id="toggleBtnText">店铺列表</span></button>
+        </div>
+    </div>
+    
+    <!-- 弹窗 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            
+            <div class="image-slider" id="imageSlider"></div>
+            
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title" id="modalTitle"></div>
+                    <div class="modal-categories" id="modalCategories"></div>
+                </div>
+                
+                <div class="modal-description" id="modalDescription"></div>
+                
+                <div class="modal-info">
+                    <div class="modal-info-item">
+                        <div class="modal-info-icon">📍</div>
+                        <div class="modal-info-text" id="modalAddress"></div>
+                    </div>
+                </div>
+                
+                <button class="nav-button" onclick="openNavigation()">
+                    🗺️ 导航到这里
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 店铺数据
+        const shopData = {
+            "total": 29,
+            "shops": [
+                {
+                    "id": "001",
+                    "name": "BasilBistro罗勒",
+                    "category": ["餐饮美食"],
+                    "images": ["店铺图片/BasilBistro罗勒-1.jpg"],
+                    "description": "一店双境，食与酒的温柔叙事。在城市快节奏的缝隙里，这里是既能安心吃一顿扎实正餐，又能松弛小酌的角落。白日里是安静雅致的意式餐厅，夜幕下转身成法式清吧酒馆。",
+                    "address": "坪山大道2011号潮悦荟广场L1-123号",
+                    "coordinate": {"lat": 22.675, "lng": 114.284},
+                    "mapPosition": {"x": 2667, "y": 3069}
+                },
+                {
+                    "id": "002",
+                    "name": "六合空间烤吧",
+                    "category": ["餐饮美食"],
+                    "images": ["店铺图片/六合空间-1.jpg", "店铺图片/六合空间-2.jpg"],
+                    "description": "六合空间烤吧，位于深圳坪山区坪山大道5019号，是坪山本地人气颇高的一站式美食聚会空间。主打东北烧烤+潮汕风味火锅的融合菜系。",
+                    "address": "深圳市坪山区坪山大道5019号",
+                    "coordinate": {"lat": 22.698, "lng": 114.235},
+                    "mapPosition": {"x": 3267, "y": 2672}
+                },
+                {
+                    "id": "003",
+                    "name": "鹏鹏虾庄·创新土鸡火锅",
+                    "category": ["餐饮美食"],
+                    "images": ["店铺图片/鹏鹏虾庄·创新土鸡火锅-1.jpg", "店铺图片/鹏鹏虾庄·创新土鸡火锅-2.jpg"],
+                    "description": "一家属于年轻人的活力小龙虾烧烤小馆，没有复杂排场，只有烟火与真诚。活虾现做，炭火现烤，不玩套路只做实在味道。",
+                    "address": "坪山区宝山第二工业区宝山产业园4栋106",
+                    "coordinate": {"lat": 22.686, "lng": 114.248},
+                    "mapPosition": {"x": 2876, "y": 2692}
+                },
+                {
+                    "id": "004",
+                    "name": "深圳市坪山区原野西餐厅",
+                    "category": ["餐饮美食"],
+                    "images": ["店铺图片/原野西餐厅-1.jpg"],
+                    "description": "店面及产品设计新颖独特、原创性强，能深度融合坪山本地经济特色，小店运营状态良好，在本社区及附近范围有一定影响力。",
+                    "address": "深圳市坪山区马峦街道坪环社区中昌路6-65",
+                    "coordinate": {"lat": 22.643, "lng": 114.268},
+                    "mapPosition": {"x": 3511, "y": 3173}
+                },
+                {
+                    "id": "005",
+                    "name": "福源居",
+                    "category": ["娱乐休闲"],
+                    "images": ["店铺图片/福源居-1.jpg", "店铺图片/福源居-2.jpg"],
+                    "description": "百年古宅，沉淀着时光的故事，弥漫着历史的韵味。远离城市的宣泄与疲惫，归隐田园的宁静自在。采菊东篱下，悠然见南山。",
+                    "address": "坪山区石井街道金龟半坝村3号",
+                    "coordinate": {"lat": 22.694, "lng": 114.224},
+                    "mapPosition": {"x": 4889, "y": 3849}
+                },
+                {
+                    "id": "006",
+                    "name": "火车头live",
+                    "category": ["娱乐休闲"],
+                    "images": ["店铺图片/火车头live-1.jpg", "店铺图片/火车头live-2.jpg"],
+                    "description": "火车头live·迷笛窝，一家藏在城市里的音乐小酒馆。有酒、有歌、有朋友，更有治愈人心的烟火气息。",
+                    "address": "广东省深圳市坪山区山路1号101",
+                    "coordinate": {"lat": 22.691, "lng": 114.208},
+                    "mapPosition": {"x": 3096, "y": 2844}
+                },
+                {
+                    "id": "007",
+                    "name": "又见咖啡工作室",
+                    "category": ["咖啡甜品"],
+                    "images": ["店铺图片/又见咖啡-1.jpg", "店铺图片/又见咖啡-2.jpg", "店铺图片/又见咖啡-3.jpg"],
+                    "description": "又见咖啡工作室创立于2025年，坐落于坪山赤坳\"天然氧吧\"位置，以\"自然、温暖、慢享\"为核心理念。",
+                    "address": "深圳市坪山区马峦街道江岭社区三河村96号",
+                    "coordinate": {"lat": 22.692, "lng": 114.227},
+                    "mapPosition": {"x": 3947, "y": 3883}
+                },
+                {
+                    "id": "008",
+                    "name": "开心爸爸面包店",
+                    "category": ["咖啡甜品"],
+                    "images": ["店铺图片/开心爸爸面包店-1.jpg", "店铺图片/开心爸爸面包店-2.jpg", "店铺图片/开心爸爸面包店-3.jpg"],
+                    "description": "为了让更多的人吃到健康美味的无添加面包，用心烘焙每一份幸福。",
+                    "address": "深圳市坪山区奥园翡翠东湾一期1栋外围二楼商铺223铺",
+                    "coordinate": {"lat": 22.682, "lng": 114.297},
+                    "mapPosition": {"x": 4211, "y": 2430}
+                },
+                {
+                    "id": "009",
+                    "name": "Somethingfor创新广场店",
+                    "category": ["咖啡甜品"],
+                    "images": ["店铺图片/Somethingfor创新广场店-1.jpg", "店铺图片/Somethingfor创新广场店-2.jpg", "店铺图片/Somethingfor创新广场店-3.jpg"],
+                    "description": "Something For 是2017年成立于深圳的精品咖啡品牌，定位为\"黑咖啡专业品牌\"，主打澳式经典咖啡和酥皮牛角包。",
+                    "address": "坪山区坪山大道2007号创新广场群楼113号",
+                    "coordinate": {"lat": 22.629, "lng": 114.254},
+                    "mapPosition": {"x": 3092, "y": 2472}
+                },
+                {
+                    "id": "010",
+                    "name": "知亦cake＆cafe",
+                    "category": ["咖啡甜品"],
+                    "images": ["店铺图片/知亦cake＆cafe-1.jpg", "店铺图片/知亦cake＆cafe-2.jpg", "店铺图片/知亦cake＆cafe-3.jpg"],
+                    "description": "本店主营精品咖啡与烘焙蛋糕，店铺风格清新简约，消费群体以青年群体为主，契合当代年轻人休闲社交需求。",
+                    "address": "深圳市坪山区马峦街道坪环社区大万万安东街23号北边101、102",
+                    "coordinate": {"lat": 22.628, "lng": 114.236},
+                    "mapPosition": {"x": 3086, "y": 3303}
+                },
+                {
+                    "id": "011",
+                    "name": "许愿甜点",
+                    "category": ["咖啡甜品"],
+                    "images": ["店铺图片/许愿甜品-1.jpg", "店铺图片/许愿甜品-2.jpg"],
+                    "description": "许愿甜点作为一家扎根马峦街道的青年创业小店，贴合计划核心定位。团队充满青春活力与创新动能。",
+                    "address": "坪山区马峦街道牛盛路4号",
+                    "coordinate": {"lat": 22.617, "lng": 114.225},
+                    "mapPosition": {"x": 2684, "y": 3275}
+                },
+                {
+                    "id": "012",
+                    "name": "墩宝糖水铺",
+                    "category": ["咖啡甜品"],
+                    "images": ["店铺图片/墩宝糖水铺-1.jpg", "店铺图片/墩宝糖水铺-2.jpg"],
+                    "description": "墩宝糖水铺，新中式装修的暖心糖水铺，为你在忙碌的生活中带来一丝甜蜜。",
+                    "address": "深圳市坪山区碧岭街道碧岭社区新榕路127-1",
+                    "coordinate": {"lat": 22.625, "lng": 114.264},
+                    "mapPosition": {"x": 2227, "y": 3501}
+                },
+                {
+                    "id": "013",
+                    "name": "甜满满甜汤",
+                    "category": ["咖啡甜品"],
+                    "images": ["店铺图片/甜满满甜汤-1.jpg"],
+                    "description": "深圳市甜满满甜汤餐饮有限公司是辖区内极具活力的青年创业典型，由本地青年自主创办，主打健康、创意甜品。",
+                    "address": "深圳市坪山区碧岭街道沙湖社区碧沙北路26号蔚蓝左岸2栋2单元S110",
+                    "coordinate": {"lat": 22.622, "lng": 114.275},
+                    "mapPosition": {"x": 2861, "y": 3384}
+                },
+                {
+                    "id": "014",
+                    "name": "叁点叁小吃店",
+                    "category": ["餐饮美食"],
+                    "images": ["店铺图片/叁点叁小吃店-1.jpg"],
+                    "description": "申请\"青春小店\"不仅是为了获得政策扶持，更是为了证明青年一代的创业价值，打造特色餐饮品牌。",
+                    "address": "深圳市坪山区龙田街道老坑社区井水龙新一巷5、6号102",
+                    "coordinate": {"lat": 22.663, "lng": 114.206},
+                    "mapPosition": {"x": 4036, "y": 1771}
+                },
+                {
+                    "id": "015",
+                    "name": "江岭三河（编织咖啡馆）",
+                    "category": ["咖啡甜品"],
+                    "images": ["店铺图片/江岭三河(编织咖啡馆)-1.jpg", "店铺图片/江岭三河(编织咖啡馆)-2.jpg"],
+                    "description": "一杯咖啡与一段人生的编织。我们的故事，始于故乡，成于双手，融于杯中。",
+                    "address": "深圳市坪山区江岭三河村五巷十号一楼",
+                    "coordinate": {"lat": 22.615, "lng": 114.251},
+                    "mapPosition": {"x": 3752, "y": 3784}
+                },
+                {
+                    "id": "016",
+                    "name": "树下陶",
+                    "category": ["娱乐休闲"],
+                    "images": ["店铺图片/树下陶-1.jpg", "店铺图片/树下陶-2.jpg"],
+                    "description": "以陶为媒，在泥土与指尖间，定格手作的温柔时光。在这里，每个人都可以创造属于自己的陶器作品。",
+                    "address": "深圳市坪山区坪山街道和平社区团结路10号111",
+                    "coordinate": {"lat": 22.657, "lng": 114.227},
+                    "mapPosition": {"x": 3274, "y": 2957}
+                },
+                {
+                    "id": "017",
+                    "name": "夕空间",
+                    "category": ["娱乐休闲"],
+                    "images": ["店铺图片/夕空间-1.jpg", "店铺图片/夕空间-2.jpg"],
+                    "description": "夕空间，是一家艺术创作商店，专注挖掘金龟特色，制作金龟艺术家文创周边，包括纪念品、木雕、陶艺、绘画等。",
+                    "address": "深圳市坪山区石井街道金龟社区金地西区3号101",
+                    "coordinate": {"lat": 22.629, "lng": 114.29},
+                    "mapPosition": {"x": 4351, "y": 2883}
+                },
+                {
+                    "id": "018",
+                    "name": "花房柴窑面包坊",
+                    "category": ["娱乐休闲"],
+                    "images": ["店铺图片/花房柴窑面包坊-1.jpg", "店铺图片/花房柴窑面包坊-2.jpg"],
+                    "description": "深圳花房柴窑面包坊是一家有老旧房屋改造而来的庭院，以荔枝木作为燃料，纯手工制作面包，开设手工体验课程。",
+                    "address": "深圳市坪山区石井街道金龟社区金地西区9号",
+                    "coordinate": {"lat": 22.623, "lng": 114.229},
+                    "mapPosition": {"x": 4558, "y": 3927}
+                },
+                {
+                    "id": "019",
+                    "name": "艺海时光·小院",
+                    "category": ["娱乐休闲"],
+                    "images": ["店铺图片/艺海时光·小院-1.jpg", "店铺图片/艺海时光·小院-2.jpg"],
+                    "description": "这里是艺海——坪山首席\"艺术+自然\"沉浸式文创研学共生体。以流动的沙画为灵魂，融合非遗手作、森林露营、音乐市集。",
+                    "address": "吉祥四路东部花卉中心（艺海时光·小院）",
+                    "coordinate": {"lat": 22.665, "lng": 114.239},
+                    "mapPosition": {"x": 4476, "y": 2579}
+                },
+                {
+                    "id": "020",
+                    "name": "南风知衣汉服体验",
+                    "category": ["娱乐休闲"],
+                    "images": [],
+                    "description": "店铺为两个营业执照经营两个不同类目，又互相贯通。业务一：成人舞蹈，业务二：汉服体验馆。",
+                    "address": "坪山老街彩虹路3号",
+                    "coordinate": {"lat": 22.603, "lng": 114.218},
+                    "mapPosition": {"x": 3209, "y": 3145}
+                },
+                {
+                    "id": "021",
+                    "name": "荷糖悦品",
+                    "category": ["咖啡甜品"],
+                    "images": ["店铺图片/荷糖悦品-1.jpg"],
+                    "description": "荷糖悦品保留客家村建筑元素，传承其营造理念，活化利用闲置老屋，让建筑从\"静态保护\"走向\"动态传承\"。",
+                    "address": "深圳市坪山区石井街道岭脚老村4号",
+                    "coordinate": {"lat": 22.651, "lng": 114.274},
+                    "mapPosition": {"x": 4090, "y": 2782}
+                },
+                {
+                    "id": "022",
+                    "name": "吖咪艺树园",
+                    "category": ["娱乐休闲"],
+                    "images": ["店铺图片/吖咪艺树园-1.jpg"],
+                    "description": "集艺术庭院、咖啡轻食、活动场地于一体的复合空间。绿植环绕、草坪开阔、文艺安静！",
+                    "address": "深圳市坪山区马峦街道坪山雕塑艺术创艺园工作室1栋",
+                    "coordinate": {"lat": 22.654, "lng": 114.298},
+                    "mapPosition": {"x": 3280, "y": 3442}
+                },
+                {
+                    "id": "023",
+                    "name": "去峦山",
+                    "category": ["娱乐休闲"],
+                    "images": ["店铺图片/去峦山-1.jpg"],
+                    "description": "碧岭路口马峦山脚下必经路，集露营、烤肉、咖啡、火锅的休闲驿站，是城市逃离的绝佳去处。",
+                    "address": "坪山区碧岭街道马峦郊野公园观瀑路101号",
+                    "coordinate": {"lat": 22.649, "lng": 114.219},
+                    "mapPosition": {"x": 2946, "y": 4338}
+                },
+                {
+                    "id": "024",
+                    "name": "New tennis新网网球馆",
+                    "category": ["娱乐休闲"],
+                    "images": ["店铺图片/New tennis新网网球馆-1.jpg"],
+                    "description": "我们不只是一家发球机馆，而是一扇通向网球新的门。尝试用科技降低热爱门槛，用热情打破刻板印象。",
+                    "address": "坪山区潮悦荟2楼243号",
+                    "coordinate": {"lat": 22.617, "lng": 114.218},
+                    "mapPosition": {"x": 2883, "y": 3177}
+                },
+                {
+                    "id": "025",
+                    "name": "舒昕瑜伽馆",
+                    "category": ["娱乐休闲"],
+                    "images": ["店铺图片/舒昕瑜伽馆-1.jpg"],
+                    "description": "舒昕瑜伽馆位于我社区下廖，店主为本地青年创业者，经营规范、口碑良好，是放松身心的好去处。",
+                    "address": "坪山区坑梓街道沙田社区廖和路36号一二楼",
+                    "coordinate": {"lat": 22.686, "lng": 114.295},
+                    "mapPosition": {"x": 4403, "y": 1204}
+                },
+                {
+                    "id": "026",
+                    "name": "隐归叁舍民宿",
+                    "category": ["特色民宿"],
+                    "images": ["店铺图片/隐归叁舍民宿-1.jpg", "店铺图片/隐归叁舍民宿-2.jpg"],
+                    "description": "隐归叁舍民宿是金龟首家以咏春为主题的民宿，在改造老旧房屋的基础上，融入山水田园风格和咏春元素。",
+                    "address": "深圳市坪山区石井街道金龟社区田作村20号",
+                    "coordinate": {"lat": 22.615, "lng": 114.219},
+                    "mapPosition": {"x": 5171, "y": 3757}
+                },
+                {
+                    "id": "027",
+                    "name": "粤口口腔",
+                    "category": ["生活服务"],
+                    "images": ["店铺图片/粵口口腔-1.jpg"],
+                    "description": "【粤口口腔·本土连锁品牌】作为坪山地区大型口腔连锁品牌，汇集了由知名国内三甲专家、教授领衔的硕博医疗团队。",
+                    "address": "坪山大道创新广场裙楼2楼（候机楼2F）",
+                    "coordinate": {"lat": 22.624, "lng": 114.224},
+                    "mapPosition": {"x": 3568, "y": 2392}
+                },
+                {
+                    "id": "028",
+                    "name": "未来隽才大椿堂中医诊所",
+                    "category": ["生活服务"],
+                    "images": ["店铺图片/未来隽才大椿堂中医诊所-1.jpg", "店铺图片/未来隽才大椿堂中医诊所-2.jpg"],
+                    "description": "该店是一群由技术大学药学院学生创办的中医诊疗馆，传承中医智慧，服务社区居民。",
+                    "address": "深圳市坪山区龙田街道竹坑社区石湖村2-1号",
+                    "coordinate": {"lat": 22.636, "lng": 114.221},
+                    "mapPosition": {"x": 4465, "y": 2264}
+                },
+                {
+                    "id": "029",
+                    "name": "云沁盲人推拿中心",
+                    "category": ["生活服务"],
+                    "images": ["店铺图片/云沁盲人推拿中心-1.jpg", "店铺图片/云沁盲人推拿中心-2.jpg"],
+                    "description": "本店专注盲人推拿理疗，技师均经过专业培训，凭借娴熟手法与精准触感，为您舒缓身心疲惫。",
+                    "address": "坪山区六联社区东纵路409号2楼",
+                    "coordinate": {"lat": 22.69, "lng": 114.222},
+                    "mapPosition": {"x": 2912, "y": 2954}
+                }
+            ]
+        };
+
+        let currentShop = null;
+        let currentImageIndex = 0;
+        let currentFilter = 'all';
+        let imageScale = 0.2;
+        let isMobileListView = false;
+
+        // 初始化
+        function init() {
+            const mapImg = document.getElementById('mapImage');
+            mapImg.onload = function() {
+                const actualWidth = mapImg.naturalWidth;
+                const displayWidth = mapImg.offsetWidth;
+                imageScale = displayWidth / actualWidth;
+                renderMarkers('desktop');
+                renderMarkers('mobile');
+            };
+            
+            renderFilters('desktop');
+            renderFilters('mobile');
+            renderShopList('desktop');
+            renderShopList('mobile');
+            updateStats();
+            updateMobileStats();
+            
+            // 初始化手机端地图
+            const mobileMapImg = document.getElementById('mobileMapImage');
+            mobileMapImg.onload = function() {
+                if (imageScale === 0.2) {
+                    const actualWidth = mobileMapImg.naturalWidth;
+                    const displayWidth = mobileMapImg.offsetWidth;
+                    imageScale = displayWidth / actualWidth;
+                    renderMarkers('mobile');
+                }
+            };
+        }
+        
+        // 渲染筛选标签
+        function renderFilters(type) {
+            const containerId = type === 'desktop' ? 'filterTabs' : 'mobileFilterTabs';
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const categories = [...new Set(shopData.shops.map(s => s.category[0]))];
+            container.innerHTML = '<div class="filter-tab active" data-category="all">全部</div>';
+            categories.forEach(cat => {
+                container.innerHTML += `<div class="filter-tab" data-category="${cat}">${cat}</div>`;
+            });
+            
+            container.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    container.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentFilter = tab.dataset.category;
+                    renderShopList('desktop');
+                    renderShopList('mobile');
+                    renderMarkers('desktop');
+                    renderMarkers('mobile');
+                });
+            });
+        }
+
+        // 渲染店铺列表
+        function renderShopList(type) {
+            const listId = type === 'desktop' ? 'shopList' : 'mobileShopList';
+            const list = document.getElementById(listId);
+            if (!list) return;
+            
+            const shops = currentFilter === 'all' ? shopData.shops : shopData.shops.filter(s => s.category.includes(currentFilter));
+            
+            list.innerHTML = shops.map((shop, idx) => `
+                <div class="shop-item" data-id="${shop.id}" onclick="selectShop('${shop.id}')">
+                    <div class="shop-item-header">
+                        <span class="shop-item-number">${parseInt(shop.id)}</span>
+                        <span class="shop-item-name">${shop.name}</span>
+                    </div>
+                    <span class="shop-item-category">${shop.category[0]}</span>
+                    <div class="shop-item-desc">${shop.description}</div>
+                </div>
+            `).join('');
+        }
+
+        // 渲染地图标记
+        function renderMarkers(type) {
+            const wrapperId = type === 'desktop' ? 'mapWrapper' : 'mobileMapWrapper';
+            const wrapper = document.getElementById(wrapperId);
+            if (!wrapper) return;
+            
+            const existingMarkers = wrapper.querySelectorAll('.marker');
+            existingMarkers.forEach(m => m.remove());
+            
+            const shops = currentFilter === 'all' ? shopData.shops : shopData.shops.filter(s => s.category.includes(currentFilter));
+            
+            shops.forEach(shop => {
+                const marker = document.createElement('div');
+                marker.className = 'marker';
+                marker.dataset.id = shop.id;
+                marker.style.left = (shop.mapPosition.x * imageScale) + 'px';
+                marker.style.top = (shop.mapPosition.y * imageScale) + 'px';
+                marker.innerHTML = `<span class="marker-number">${parseInt(shop.id)}</span>`;
+                marker.addEventListener('click', () => selectShop(shop.id));
+                marker.addEventListener('mouseenter', (e) => {
+                    marker.title = shop.name;
+                });
+                wrapper.appendChild(marker);
+            });
+        }
+
+        // 选择店铺
+        function selectShop(shopId) {
+            currentShop = shopData.shops.find(s => s.id === shopId);
+            
+            // 更新列表高亮
+            document.querySelectorAll('.shop-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.id === shopId);
+            });
+            
+            // 更新标记高亮
+            document.querySelectorAll('.marker').forEach(m => {
+                m.classList.toggle('active', m.dataset.id === shopId);
+            });
+            
+            openModal();
+        }
+
+        // 打开弹窗
+        function openModal() {
+            if (!currentShop) return;
+            
+            const modalOverlay = document.getElementById('modalOverlay');
+            
+            // 渲染图片
+            const imageSlider = document.getElementById('imageSlider');
+            if (currentShop.images.length > 0) {
+                imageSlider.innerHTML = `
+                    ${currentShop.images.map((img, idx) => `
+                        <img class="slider-image ${idx === 0 ? 'active' : ''}" src="${img}" alt="${currentShop.name}">
+                    `).join('')}
+                    ${currentShop.images.length > 1 ? `
+                        <button class="slider-arrow prev" onclick="prevImage()">‹</button>
+                        <button class="slider-arrow next" onclick="nextImage()">›</button>
+                        <div class="slider-nav">
+                            ${currentShop.images.map((_, idx) => `
+                                <div class="slider-dot ${idx === 0 ? 'active' : ''}" onclick="goToImage(${idx})"></div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                `;
+            } else {
+                imageSlider.innerHTML = `
+                    <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9ca3af;font-size:14px;">
+                        暂无图片
+                    </div>
+                `;
+            }
+            currentImageIndex = 0;
+            
+            // 渲染内容
+            document.getElementById('modalTitle').textContent = currentShop.name;
+            document.getElementById('modalCategories').innerHTML = currentShop.category.map(c => 
+                `<span class="modal-category">${c}</span>`
+            ).join('');
+            document.getElementById('modalDescription').textContent = currentShop.description;
+            document.getElementById('modalAddress').textContent = currentShop.address;
+            
+            modalOverlay.classList.add('active');
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            currentShop = null;
+            
+            document.querySelectorAll('.shop-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelectorAll('.marker').forEach(m => {
+                m.classList.remove('active');
+            });
+        }
+
+        // 图片轮播
+        function nextImage() {
+            if (!currentShop || currentShop.images.length <= 1) return;
+            currentImageIndex = (currentImageIndex + 1) % currentShop.images.length;
+            updateSlider();
+        }
+        function prevImage() {
+            if (!currentShop || currentShop.images.length <= 1) return;
+            currentImageIndex = (currentImageIndex - 1 + currentShop.images.length) % currentShop.images.length;
+            updateSlider();
+        }
+        function goToImage(idx) {
+            currentImageIndex = idx;
+            updateSlider();
+        }
+        function updateSlider() {
+            document.querySelectorAll('.slider-image').forEach((img, idx) => {
+                img.classList.toggle('active', idx === currentImageIndex);
+            });
+            document.querySelectorAll('.slider-dot').forEach((dot, idx) => {
+                dot.classList.toggle('active', idx === currentImageIndex);
+            });
+        }
+
+        // 导航
+        function openNavigation() {
+            if (!currentShop) return;
+            const { lat, lng } = currentShop.coordinate;
+            const name = encodeURIComponent(currentShop.name);
+            const address = encodeURIComponent(currentShop.address);
+            
+            if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                window.open(`https://uri.amap.com/marker?position=${lng},${lat}&name=${name}&address=${address}&coordinate=gaode&callnative=1`);
+            } else {
+                window.open(`https://www.amap.com/search?query=${name}&geoobj=${lng},${lat}`);
+            }
+        }
+
+        // 更新统计
+        function updateStats() {
+            const categories = [...new Set(shopData.shops.map(s => s.category[0]))];
+            document.getElementById('totalShops').textContent = shopData.shops.length;
+            document.getElementById('totalCats').textContent = categories.length;
+        }
+        
+        // 更新手机端统计
+        function updateMobileStats() {
+            const categories = [...new Set(shopData.shops.map(s => s.category[0]))];
+            document.getElementById('mobileTotalShops').textContent = shopData.shops.length;
+            document.getElementById('mobileTotalCats').textContent = categories.length;
+        }
+        
+        // 返回顶部
+        function scrollToTop() {
+            const mobileList = document.querySelector('.mobile-shop-list');
+            if (mobileList) {
+                mobileList.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+        
+        // 切换地图/列表视图
+        function toggleMapList() {
+            const mobileList = document.querySelector('.mobile-shop-list');
+            const mapContainer = document.querySelector('.mobile-layout .map-container');
+            
+            if (isMobileListView) {
+                // 切换到地图视图
+                mobileList.style.display = 'block';
+                mapContainer.style.display = 'block';
+                document.getElementById('toggleBtnText').textContent = '店铺列表';
+                isMobileListView = false;
+            } else {
+                // 切换到列表视图
+                mobileList.style.display = 'block';
+                mapContainer.style.display = 'none';
+                document.getElementById('toggleBtnText').textContent = '显示地图';
+                isMobileListView = true;
+            }
+        }
+        
+        // 点击弹窗外部关闭
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'modalOverlay') closeModal();
+        });
+
+        // ESC关闭
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        init();
+    </script>
+</body>
+</html>
