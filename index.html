@@ -509,23 +509,25 @@
             .map-container {
                 height: 32vh;
                 flex: none;
-                overflow: scroll;
+                overflow: hidden;
                 position: relative;
-                -webkit-overflow-scrolling: touch;
                 background: #222;
+                touch-action: none;
             }
             .map-container .map-wrapper {
                 display: block;
+                position: relative;
                 min-height: 100%;
                 min-width: 100%;
-                padding: 20px;
                 transform-origin: top left;
+                transition: transform 0.1s ease-out;
             }
             .map-container img {
-                width: 100%;
-                height: auto;
+                width: auto;
+                height: 100%;
                 max-width: none;
                 max-height: none;
+                display: block;
             }
             .map-zoom-hint {
                 position: absolute;
@@ -535,9 +537,32 @@
                 color: white;
                 padding: 6px 10px;
                 border-radius: 20px;
-                font-size: 12px;
+                font-size: 11px;
                 z-index: 20;
                 pointer-events: none;
+            }
+            .map-zoom-controls {
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                z-index: 25;
+            }
+            .zoom-btn {
+                width: 36px;
+                height: 36px;
+                background: rgba(255,255,255,0.9);
+                border: none;
+                border-radius: 50%;
+                font-size: 20px;
+                cursor: pointer;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+            .zoom-btn:active {
+                background: rgba(255,255,255,1);
+                transform: scale(0.95);
             }
             
             .filter-tabs {
@@ -600,21 +625,21 @@
             }
             
             .marker {
-                width: 20px;
-                height: 20px;
-                border-width: 1.5px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+                width: 14px;
+                height: 14px;
+                border-width: 1px;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.4);
             }
             .marker:hover {
-                transform: translate(-50%, -50%) scale(1.2);
-                box-shadow: 0 3px 12px rgba(0,0,0,0.5);
+                transform: translate(-50%, -50%) scale(1.4);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.5);
             }
             .marker.active {
-                transform: translate(-50%, -50%) scale(1.3);
-                box-shadow: 0 4px 16px rgba(79, 172, 254, 0.6);
+                transform: translate(-50%, -50%) scale(1.5);
+                box-shadow: 0 3px 10px rgba(79, 172, 254, 0.6);
             }
             .marker-number {
-                font-size: 8px;
+                font-size: 6px;
             }
         }
         
@@ -801,10 +826,15 @@
             </div>
         </div>
         
-        <div class="map-container">
-            <div class="map-zoom-hint">👆 双指缩放地图</div>
+        <div class="map-container" id="mobileMapContainer">
+            <div class="map-zoom-hint">👆 双指缩放 / 拖动查看</div>
             <div class="map-wrapper" id="mobileMapWrapper">
                 <img id="mobileMapImage" src="坪山区青春小店消费图鉴.jpg" alt="坪山区青春小店消费图鉴">
+            </div>
+            <div class="map-zoom-controls">
+                <button class="zoom-btn" onclick="zoomInMobile()">➕</button>
+                <button class="zoom-btn" onclick="zoomOutMobile()">➖</button>
+                <button class="zoom-btn" onclick="resetZoomMobile()">🔄</button>
             </div>
         </div>
         
@@ -1162,8 +1192,16 @@
         let currentImageIndex = 0;
         let currentFilter = 'all';
         let desktopImageScale = 0.2;
-        let mobileImageScale = 0.08;
+        let mobileBaseImageScale = 0.08;
+        let mobileCurrentScale = 1;
+        let mobileOffsetX = 0;
+        let mobileOffsetY = 0;
         let isMobileListView = false;
+        let initialPinchDistance = 0;
+        let initialScale = 1;
+        let lastTouchX = 0;
+        let lastTouchY = 0;
+        let isDragging = false;
 
         // 初始化
         function init() {
@@ -1187,9 +1225,12 @@
             mobileMapImg.onload = function() {
                 const actualWidth = mobileMapImg.naturalWidth;
                 const displayWidth = mobileMapImg.offsetWidth;
-                mobileImageScale = displayWidth / actualWidth;
+                mobileBaseImageScale = displayWidth / actualWidth;
                 renderMarkers('mobile');
             };
+            
+            // 设置手机端地图缩放事件
+            setupMobileMapZoom();
             
             // 窗口大小改变时重新计算
             window.addEventListener('resize', function() {
@@ -1199,11 +1240,85 @@
                     desktopImageScale = img1.offsetWidth / img1.naturalWidth;
                 }
                 if (img2 && img2.naturalWidth > 0) {
-                    mobileImageScale = img2.offsetWidth / img2.naturalWidth;
+                    mobileBaseImageScale = img2.offsetWidth / img2.naturalWidth;
                 }
                 renderMarkers('desktop');
                 renderMarkers('mobile');
             });
+        }
+        
+        // 设置手机端地图缩放
+        function setupMobileMapZoom() {
+            const container = document.getElementById('mobileMapContainer');
+            if (!container) return;
+            
+            container.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 2) {
+                    initialPinchDistance = getPinchDistance(e.touches);
+                    initialScale = mobileCurrentScale;
+                    isDragging = false;
+                } else if (e.touches.length === 1) {
+                    lastTouchX = e.touches[0].clientX;
+                    lastTouchY = e.touches[0].clientY;
+                    isDragging = true;
+                }
+            }, { passive: false });
+            
+            container.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                if (e.touches.length === 2) {
+                    const currentDistance = getPinchDistance(e.touches);
+                    const scaleDelta = currentDistance / initialPinchDistance;
+                    mobileCurrentScale = Math.max(0.5, Math.min(3, initialScale * scaleDelta));
+                    updateMobileMapTransform();
+                    renderMarkers('mobile');
+                } else if (e.touches.length === 1 && isDragging) {
+                    const deltaX = e.touches[0].clientX - lastTouchX;
+                    const deltaY = e.touches[0].clientY - lastTouchY;
+                    mobileOffsetX += deltaX;
+                    mobileOffsetY += deltaY;
+                    lastTouchX = e.touches[0].clientX;
+                    lastTouchY = e.touches[0].clientY;
+                    updateMobileMapTransform();
+                }
+            }, { passive: false });
+            
+            container.addEventListener('touchend', function(e) {
+                isDragging = false;
+            });
+        }
+        
+        function getPinchDistance(touches) {
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+        
+        function updateMobileMapTransform() {
+            const wrapper = document.getElementById('mobileMapWrapper');
+            if (wrapper) {
+                wrapper.style.transform = `translate(${mobileOffsetX}px, ${mobileOffsetY}px) scale(${mobileCurrentScale})`;
+            }
+        }
+        
+        function zoomInMobile() {
+            mobileCurrentScale = Math.min(3, mobileCurrentScale * 1.3);
+            updateMobileMapTransform();
+            renderMarkers('mobile');
+        }
+        
+        function zoomOutMobile() {
+            mobileCurrentScale = Math.max(0.5, mobileCurrentScale * 0.7);
+            updateMobileMapTransform();
+            renderMarkers('mobile');
+        }
+        
+        function resetZoomMobile() {
+            mobileCurrentScale = 1;
+            mobileOffsetX = 0;
+            mobileOffsetY = 0;
+            updateMobileMapTransform();
+            renderMarkers('mobile');
         }
         
         // 渲染筛选标签
@@ -1261,20 +1376,28 @@
             existingMarkers.forEach(m => m.remove());
             
             const shops = currentFilter === 'all' ? shopData.shops : shopData.shops.filter(s => s.category.includes(currentFilter));
-            const scale = type === 'desktop' ? desktopImageScale : mobileImageScale;
+            let scale;
+            if (type === 'desktop') {
+                scale = desktopImageScale;
+            } else {
+                scale = mobileBaseImageScale;
+            }
             const isMobile = type === 'mobile';
             
             shops.forEach((shop, index) => {
                 const marker = document.createElement('div');
                 marker.className = 'marker';
                 if (isMobile && currentFilter === 'all') {
-                    marker.style.opacity = '0.85';
+                    marker.style.opacity = '0.8';
                 }
                 marker.dataset.id = shop.id;
                 marker.style.left = (shop.mapPosition.x * scale) + 'px';
                 marker.style.top = (shop.mapPosition.y * scale) + 'px';
                 marker.innerHTML = `<span class="marker-number">${parseInt(shop.id)}</span>`;
-                marker.addEventListener('click', () => selectShop(shop.id));
+                marker.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectShop(shop.id);
+                });
                 marker.addEventListener('mouseenter', (e) => {
                     marker.title = shop.name;
                     marker.style.opacity = '1';
@@ -1282,7 +1405,7 @@
                 });
                 marker.addEventListener('mouseleave', (e) => {
                     if (isMobile && currentFilter === 'all') {
-                        marker.style.opacity = '0.85';
+                        marker.style.opacity = '0.8';
                     }
                     marker.style.zIndex = '10';
                 });
