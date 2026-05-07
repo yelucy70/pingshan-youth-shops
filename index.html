@@ -507,8 +507,23 @@
             }
             
             .map-container {
-                height: 45vh;
+                height: 32vh;
                 flex: none;
+                overflow: hidden;
+                position: relative;
+            }
+            .map-container .map-wrapper {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100%;
+            }
+            .map-container img {
+                max-width: 100%;
+                max-height: 100%;
+                width: auto;
+                height: auto;
+                object-fit: contain;
             }
             
             .filter-tabs {
@@ -571,11 +586,12 @@
             }
             
             .marker {
-                width: 32px;
-                height: 32px;
+                width: 28px;
+                height: 28px;
+                border-width: 2px;
             }
             .marker-number {
-                font-size: 11px;
+                font-size: 10px;
             }
         }
         
@@ -1121,7 +1137,8 @@
         let currentShop = null;
         let currentImageIndex = 0;
         let currentFilter = 'all';
-        let imageScale = 0.2;
+        let desktopImageScale = 0.2;
+        let mobileImageScale = 0.08;
         let isMobileListView = false;
 
         // 初始化
@@ -1130,9 +1147,8 @@
             mapImg.onload = function() {
                 const actualWidth = mapImg.naturalWidth;
                 const displayWidth = mapImg.offsetWidth;
-                imageScale = displayWidth / actualWidth;
+                desktopImageScale = displayWidth / actualWidth;
                 renderMarkers('desktop');
-                renderMarkers('mobile');
             };
             
             renderFilters('desktop');
@@ -1145,13 +1161,25 @@
             // 初始化手机端地图
             const mobileMapImg = document.getElementById('mobileMapImage');
             mobileMapImg.onload = function() {
-                if (imageScale === 0.2) {
-                    const actualWidth = mobileMapImg.naturalWidth;
-                    const displayWidth = mobileMapImg.offsetWidth;
-                    imageScale = displayWidth / actualWidth;
-                    renderMarkers('mobile');
-                }
+                const actualWidth = mobileMapImg.naturalWidth;
+                const displayWidth = mobileMapImg.offsetWidth;
+                mobileImageScale = displayWidth / actualWidth;
+                renderMarkers('mobile');
             };
+            
+            // 窗口大小改变时重新计算
+            window.addEventListener('resize', function() {
+                const img1 = document.getElementById('mapImage');
+                const img2 = document.getElementById('mobileMapImage');
+                if (img1 && img1.naturalWidth > 0) {
+                    desktopImageScale = img1.offsetWidth / img1.naturalWidth;
+                }
+                if (img2 && img2.naturalWidth > 0) {
+                    mobileImageScale = img2.offsetWidth / img2.naturalWidth;
+                }
+                renderMarkers('desktop');
+                renderMarkers('mobile');
+            });
         }
         
         // 渲染筛选标签
@@ -1209,13 +1237,14 @@
             existingMarkers.forEach(m => m.remove());
             
             const shops = currentFilter === 'all' ? shopData.shops : shopData.shops.filter(s => s.category.includes(currentFilter));
+            const scale = type === 'desktop' ? desktopImageScale : mobileImageScale;
             
             shops.forEach(shop => {
                 const marker = document.createElement('div');
                 marker.className = 'marker';
                 marker.dataset.id = shop.id;
-                marker.style.left = (shop.mapPosition.x * imageScale) + 'px';
-                marker.style.top = (shop.mapPosition.y * imageScale) + 'px';
+                marker.style.left = (shop.mapPosition.x * scale) + 'px';
+                marker.style.top = (shop.mapPosition.y * scale) + 'px';
                 marker.innerHTML = `<span class="marker-number">${parseInt(shop.id)}</span>`;
                 marker.addEventListener('click', () => selectShop(shop.id));
                 marker.addEventListener('mouseenter', (e) => {
