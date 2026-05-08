@@ -1483,28 +1483,64 @@
             
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             
-            if (isMobile) {
-                // 移动端：优先尝试打开APP，使用坐标和地址直接定位到店铺
-                const appUrl = `amapuri://navi?sourceApplication=amap&poiname=${name}&lat=${lat}&lon=${lng}&dev=0&style=2`;
-                // 移动端网页版：使用API Key进行导航
-                const webUrl = `https://m.amap.com/navi/?dest=${lat},${lng},${encodeURIComponent(currentShop.address)}&destName=${name}&navtype=car&key=${API_KEY}`;
-                
-                // 创建一个隐藏的iframe来尝试打开APP
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = appUrl;
-                document.body.appendChild(iframe);
-                
-                // 如果APP没有打开，2秒后跳转到网页版
-                setTimeout(() => {
-                    document.body.removeChild(iframe);
-                    window.open(webUrl, '_blank');
-                }, 2000);
-            } else {
-                // 桌面端：使用API Key进行地址搜索
-                const webUrl = `https://ditu.amap.com/search?query=${address}&lat=${lat}&lng=${lng}&zoom=17&key=${API_KEY}`;
-                window.open(webUrl, '_blank');
-            }
+            // 使用地理编码API获取精确坐标
+            fetch(`https://restapi.amap.com/v3/geocode/geo?address=${address}&key=${API_KEY}`)
+                .then(response => response.json())
+                .then(data => {
+                    let destLat = lat;
+                    let destLng = lng;
+                    
+                    // 如果地理编码成功，使用精确坐标
+                    if (data.status === '1' && data.geocodes && data.geocodes.length > 0) {
+                        const location = data.geocodes[0].location;
+                        const coords = location.split(',');
+                        destLng = coords[0];
+                        destLat = coords[1];
+                    }
+                    
+                    if (isMobile) {
+                        // 移动端：优先尝试打开APP，使用坐标和地址直接定位到店铺
+                        const appUrl = `amapuri://viewMap?sourceApplication=amap&poiname=${name}&lat=${destLat}&lon=${destLng}&dev=0`;
+                        // 移动端网页版：使用精确坐标定位
+                        const webUrl = `https://m.amap.com/index.html?query=${address}&lat=${destLat}&lng=${destLng}&zoom=17`;
+                        
+                        // 创建一个隐藏的iframe来尝试打开APP
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = appUrl;
+                        document.body.appendChild(iframe);
+                        
+                        // 如果APP没有打开，2秒后跳转到网页版
+                        setTimeout(() => {
+                            document.body.removeChild(iframe);
+                            window.open(webUrl, '_blank');
+                        }, 2000);
+                    } else {
+                        // 桌面端：使用精确坐标定位
+                        const webUrl = `https://www.amap.com/map/index.html?query=${address}&lat=${destLat}&lng=${destLng}&zoom=17`;
+                        window.open(webUrl, '_blank');
+                    }
+                })
+                .catch(error => {
+                    // 如果地理编码失败，使用原始坐标
+                    if (isMobile) {
+                        const appUrl = `amapuri://viewMap?sourceApplication=amap&poiname=${name}&lat=${lat}&lon=${lng}&dev=0`;
+                        const webUrl = `https://m.amap.com/index.html?query=${address}&lat=${lat}&lng=${lng}&zoom=17`;
+                        
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = appUrl;
+                        document.body.appendChild(iframe);
+                        
+                        setTimeout(() => {
+                            document.body.removeChild(iframe);
+                            window.open(webUrl, '_blank');
+                        }, 2000);
+                    } else {
+                        const webUrl = `https://www.amap.com/map/index.html?query=${address}&lat=${lat}&lng=${lng}&zoom=17`;
+                        window.open(webUrl, '_blank');
+                    }
+                });
         }
 
         // 更新统计
