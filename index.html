@@ -58,6 +58,20 @@
             align-items: center;
             justify-content: center;
         }
+        .marker.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 0 20px rgba(240, 147, 251, 0.8), 0 0 40px rgba(245, 87, 108, 0.6), 0 0 60px rgba(240, 147, 251, 0.4);
+            transform: translate(-50%, -50%) scale(1.2);
+            animation: glow 1.5s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 20px rgba(240, 147, 251, 0.8), 0 0 40px rgba(245, 87, 108, 0.6), 0 0 60px rgba(240, 147, 251, 0.4);
+            }
+            to {
+                box-shadow: 0 0 30px rgba(240, 147, 251, 1), 0 0 50px rgba(245, 87, 108, 0.8), 0 0 70px rgba(240, 147, 251, 0.6);
+            }
+        }
         .marker:hover {
             transform: translate(-50%, -50%) scale(1.15);
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
@@ -636,6 +650,12 @@
                 border-width: 0;
                 opacity: 0.5;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            .marker.active {
+                opacity: 1;
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                box-shadow: 0 0 12px rgba(240, 147, 251, 0.9), 0 0 20px rgba(245, 87, 108, 0.7);
+                animation: glow 1.5s ease-in-out infinite alternate;
             }
             .marker-number {
                 font-size: 1px;
