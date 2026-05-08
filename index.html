@@ -1501,8 +1501,8 @@
                     if (isMobile) {
                         // 移动端：优先尝试打开APP，使用坐标和地址直接定位到店铺
                         const appUrl = `amapuri://viewMap?sourceApplication=amap&poiname=${name}&lat=${destLat}&lon=${destLng}&dev=0`;
-                        // 移动端网页版：使用精确坐标定位
-                        const webUrl = `https://m.amap.com/index.html?query=${address}&lat=${destLat}&lng=${destLng}&zoom=17`;
+                        // 移动端网页版：直接跳转到导航页面，使用经纬度定位
+                        const webUrl = `https://amap.com/navi/?dest=${destLat},${destLng},${address}&destName=${name}&navtype=car`;
                         
                         // 创建一个隐藏的iframe来尝试打开APP
                         const iframe = document.createElement('iframe');
@@ -1510,14 +1510,14 @@
                         iframe.src = appUrl;
                         document.body.appendChild(iframe);
                         
-                        // 如果APP没有打开，2秒后跳转到网页版
+                        // 如果APP没有打开，2秒后跳转到网页版导航
                         setTimeout(() => {
                             document.body.removeChild(iframe);
-                            window.open(webUrl, '_blank');
+                            window.location.href = webUrl;
                         }, 2000);
                     } else {
-                        // 桌面端：使用精确坐标定位
-                        const webUrl = `https://www.amap.com/map/index.html?query=${address}&lat=${destLat}&lng=${destLng}&zoom=17`;
+                        // 桌面端：使用搜索页面，直接定位到地址
+                        const webUrl = `https://ditu.amap.com/search?query=${address}&location=${destLng},${destLat}&zoom=17`;
                         window.open(webUrl, '_blank');
                     }
                 })
@@ -1525,7 +1525,7 @@
                     // 如果地理编码失败，使用原始坐标
                     if (isMobile) {
                         const appUrl = `amapuri://viewMap?sourceApplication=amap&poiname=${name}&lat=${lat}&lon=${lng}&dev=0`;
-                        const webUrl = `https://m.amap.com/index.html?query=${address}&lat=${lat}&lng=${lng}&zoom=17`;
+                        const webUrl = `https://amap.com/navi/?dest=${lat},${lng},${address}&destName=${name}&navtype=car`;
                         
                         const iframe = document.createElement('iframe');
                         iframe.style.display = 'none';
@@ -1534,10 +1534,10 @@
                         
                         setTimeout(() => {
                             document.body.removeChild(iframe);
-                            window.open(webUrl, '_blank');
+                            window.location.href = webUrl;
                         }, 2000);
                     } else {
-                        const webUrl = `https://www.amap.com/map/index.html?query=${address}&lat=${lat}&lng=${lng}&zoom=17`;
+                        const webUrl = `https://ditu.amap.com/search?query=${address}&location=${lng},${lat}&zoom=17`;
                         window.open(webUrl, '_blank');
                     }
                 });
