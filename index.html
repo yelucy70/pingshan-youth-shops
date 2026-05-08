@@ -689,7 +689,8 @@
                 padding: 16px;
             }
         }
-    </style>
+        
+        </style>
 </head>
 <body>
     <!-- 桌面端布局 -->
@@ -781,8 +782,8 @@
                 </button>
             </div>
         </div>
-    </div>
     
+
     <script>
         // 店铺数据
         const shopData = {
@@ -1418,17 +1419,15 @@
             });
         }
 
-        // 直接跳转到高德地图导航
+        // 导航到店铺
         function navigateToShop() {
             if (!currentShop) return;
             
             const { lat, lng } = currentShop.coordinate;
-            const name = encodeURIComponent(currentShop.name);
             const address = encodeURIComponent(currentShop.address);
+            const name = encodeURIComponent(currentShop.name);
             
-            // 使用高德地图网页版导航，以地址为主
             const url = `https://amap.com/navi?to=${address},${name}&lat=${lat}&lng=${lng}`;
-            
             window.open(url, '_blank');
         }
 
