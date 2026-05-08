@@ -1483,9 +1483,9 @@
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             
             if (isMobile) {
-                // 移动端：优先尝试打开APP，使用更精确的导航参数
-                const appUrl = `amapuri://route?sourceApplication=amap&dlat=${lat}&dlon=${lng}&daddr=${address}&dname=${name}&dev=0&t=0`;
-                const webUrl = `https://m.amap.com/navi/?dest=${address}&destName=${name}&lat=${lat}&lng=${lng}`;
+                // 移动端：使用marker协议打开地图，定位到店铺位置
+                const appUrl = `amapuri://viewMap?sourceApplication=amap&poiname=${name}&lat=${lat}&lon=${lng}&dev=0`;
+                const webUrl = `https://www.amap.com/search?query=${address}%20${name}&geoobj=${lng},${lat},${lng},${lat}`;
                 
                 // 创建一个隐藏的iframe来尝试打开APP
                 const iframe = document.createElement('iframe');
@@ -1499,8 +1499,8 @@
                     window.open(webUrl, '_blank');
                 }, 2000);
             } else {
-                // 桌面端：直接打开网页版
-                const webUrl = `https://amap.com/navi/?dest=${address}&destName=${name}&lat=${lat}&lng=${lng}`;
+                // 桌面端：直接打开网页版搜索
+                const webUrl = `https://www.amap.com/search?query=${address}%20${name}&geoobj=${lng},${lat},${lng},${lat}`;
                 window.open(webUrl, '_blank');
             }
         }
