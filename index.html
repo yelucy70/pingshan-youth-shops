@@ -1571,7 +1571,7 @@
                     name: '百度地图',
                     desc: '另一个流行选择',
                     icon: '📍',
-                    mobileUrl: `https://map.baidu.com/mobile/webapp/search/index/search?q=${address}&location=${lat},${lng}`,
+                    mobileUrl: `baidumap://map/navi?location=${lat},${lng}&title=${name}&content=${address}&coord_type=gcj02`,
                     webUrl: `https://map.baidu.com/mobile/webapp/search/index/search?q=${address}&location=${lat},${lng}`
                 },
                 {
@@ -1579,7 +1579,7 @@
                     name: '腾讯地图',
                     desc: 'QQ/微信用户常用',
                     icon: '🟢',
-                    mobileUrl: `https://map.qq.com/m/index.html?search=${address}&loc=${lat},${lng}`,
+                    mobileUrl: `qqmap://map/routeplan?type=drive&from=我的位置&to=${name}&tocoord=${lat},${lng}&addr=${address}`,
                     webUrl: `https://map.qq.com/m/index.html?search=${address}&loc=${lat},${lng}`
                 }
             ];
