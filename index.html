@@ -631,12 +631,12 @@
             }
             
             .marker {
-                width: 14px;
-                height: 14px;
+                width: 10px;
+                height: 10px;
                 border-width: 1px;
             }
             .marker-number {
-                font-size: 7px;
+                font-size: 5px;
             }
         }
         
@@ -1239,23 +1239,49 @@
         
         let currentScale = 1;
         let lastTouchDistance = 0;
+        let startX = 0;
+        let startY = 0;
+        let translateX = 0;
+        let translateY = 0;
+        let lastTranslateX = 0;
+        let lastTranslateY = 0;
         
         mobileMapWrapper.addEventListener('touchstart', function(e) {
-            if (e.touches.length === 2) {
+            if (e.touches.length === 1) {
+                startX = e.touches[0].clientX - lastTranslateX;
+                startY = e.touches[0].clientY - lastTranslateY;
+            } else if (e.touches.length === 2) {
                 lastTouchDistance = getDistance(e.touches[0], e.touches[1]);
             }
         });
         
         mobileMapWrapper.addEventListener('touchmove', function(e) {
-            if (e.touches.length === 2) {
+            if (e.touches.length === 1) {
+                e.preventDefault();
+                if (currentScale > 1) {
+                    translateX = e.touches[0].clientX - startX;
+                    translateY = e.touches[0].clientY - startY;
+                    mobileMapWrapper.style.transform = `scale(${currentScale}) translate(${translateX / currentScale}px, ${translateY / currentScale}px)`;
+                }
+            } else if (e.touches.length === 2) {
                 e.preventDefault();
                 const currentDistance = getDistance(e.touches[0], e.touches[1]);
                 const scaleChange = currentDistance / lastTouchDistance;
                 currentScale = Math.max(1, Math.min(4, currentScale * scaleChange));
                 mobileZoom = currentScale;
-                mobileMapWrapper.style.transform = `scale(${currentScale})`;
+                mobileMapWrapper.style.transform = `scale(${currentScale}) translate(${translateX / currentScale}px, ${translateY / currentScale}px)`;
                 lastTouchDistance = currentDistance;
             }
+        });
+        
+        mobileMapWrapper.addEventListener('touchend', function() {
+            if (currentScale === 1) {
+                translateX = 0;
+                translateY = 0;
+                mobileMapWrapper.style.transform = `scale(1)`;
+            }
+            lastTranslateX = translateX;
+            lastTranslateY = translateY;
         });
     }
     
