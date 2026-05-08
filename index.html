@@ -1571,16 +1571,16 @@
                     name: '百度地图',
                     desc: '另一个流行选择',
                     icon: '📍',
-                    mobileUrl: `bdapp://map/marker?location=${lat},${lng}&title=${name}&content=${address}&coord_type=gcj02&src=andr.baidu.openAPIdemo`,
-                    webUrl: `https://map.baidu.com/search/?query=${encodeURIComponent(address)}&location=${lat},${lng}&radius=1000`
+                    mobileUrl: `bdapp://map/navi?location=${lat},${lng}&title=${name}&address=${address}&coord_type=gcj02&src=andr.baidu.openAPIdemo`,
+                    webUrl: `https://map.baidu.com/direction?destination=latlng:${lat},${lng}|name:${name}&destination_address=${address}`
                 },
                 {
                     id: 'tencent',
                     name: '腾讯地图',
                     desc: 'QQ/微信用户常用',
                     icon: '🟢',
-                    mobileUrl: `qqmap://map/marker?marker=coord:${lat},${lng};title:${name};addr:${address}`,
-                    webUrl: `https://map.qq.com/search/${encodeURIComponent(address)}/?loc=${lat},${lng}`
+                    mobileUrl: `qqmap://map/routeplan?type=drive&from=我的位置&to=${name}&tocoord=${lat},${lng}&addr=${address}`,
+                    webUrl: `https://map.qq.com/direction.html?type=drive&to=${lat},${lng}&toaddr=${address}&toname=${name}`
                 }
             ];
             
