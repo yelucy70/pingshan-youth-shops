@@ -743,70 +743,6 @@
             justify-content: center;
             transition: all 0.2s;
         }
-        .map-options-close:hover {
-            background: #e5e7eb;
-        }
-        .map-options-list {
-            padding: 10px;
-        }
-        .map-option-item {
-            display: flex;
-            align-items: center;
-            padding: 16px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            gap: 14px;
-        }
-        .map-option-item:hover {
-            background: #f0f3ff;
-        }
-        .map-option-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            flex-shrink: 0;
-        }
-        .map-option-info {
-            flex: 1;
-        }
-        .map-option-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 4px;
-        }
-        .map-option-desc {
-            font-size: 13px;
-            color: #6b7280;
-        }
-        .map-option-arrow {
-            color: #9ca3af;
-            font-size: 20px;
-        }
-        
-        /* 各地图图标颜色 */
-        .map-option-icon.amap { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%); }
-        .map-option-icon.baidu { background: linear-gradient(135deg, #2e7ebf 0%, #1a5ca3 100%); }
-        .map-option-icon.tencent { background: linear-gradient(135deg, #00c76d 0%, #00a857 100%); }
-        .map-option-icon.apple { background: linear-gradient(135deg, #1f2937 0%, #111827 100%); }
-        .map-option-icon.google { background: linear-gradient(135deg, #4285f4 0%, #34a853 50%, #fbbc05 75%, #ea4335 100%); }
-        .map-option-icon.web { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        
-        @media screen and (max-width: 768px) {
-            .map-options-overlay {
-                padding: 0;
-                align-items: flex-end;
-            }
-            .map-options-modal {
-                border-radius: 20px 20px 0 0;
-                max-width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
@@ -894,24 +830,13 @@
                     </div>
                 </div>
                 
-                <button class="nav-button" onclick="showMapOptions()">
+                <button class="nav-button" onclick="openAmap()">
                     🗺️ 导航到这里
                 </button>
             </div>
         </div>
     </div>
     
-    <!-- 地图选择弹窗 -->
-    <div class="map-options-overlay" id="mapOptionsOverlay">
-        <div class="map-options-modal">
-            <div class="map-options-header">
-                <h3>选择导航方式</h3>
-                <button class="map-options-close" onclick="closeMapOptions()">×</button>
-            </div>
-            <div class="map-options-list" id="mapOptionsList"></div>
-        </div>
-    </div>
-
     <script>
         // 店铺数据
         const shopData = {
@@ -1547,102 +1472,37 @@
             });
         }
 
-        // 显示地图选择
-        function showMapOptions() {
+        // 直接打开高德地图导航
+        function openAmap() {
             if (!currentShop) return;
             
-            const optionsList = document.getElementById('mapOptionsList');
             const { lat, lng } = currentShop.coordinate;
             const name = encodeURIComponent(currentShop.name);
             const address = encodeURIComponent(currentShop.address);
-            const query = encodeURIComponent(currentShop.address + ' ' + currentShop.name);
-            
-            // 地图选项配置
-            const mapOptions = [
-                {
-                    id: 'amap',
-                    name: '高德地图',
-                    desc: '国内导航首选',
-                    icon: '🗺️',
-                    mobileUrl: `amapuri://route?sourceApplication=amap&dlat=${lat}&dlon=${lng}&dname=${name}&daddr=${address}&dev=0`,
-                    webUrl: `https://amap.com/navi?to=${address},${name}&lat=${lat}&lng=${lng}`
-                },
-                {
-                    id: 'baidu',
-                    name: '百度地图',
-                    desc: '另一个流行选择',
-                    icon: '📍',
-                    mobileUrl: `baidumap://map/direction?destination=name:${name}|latlng:${lat},${lng}|address:${address}&mode=driving`,
-                    webUrl: `https://map.baidu.com/direction?destination=name:${name}|latlng:${lat},${lng}|address:${address}&mode=driving`
-                },
-                {
-                    id: 'tencent',
-                    name: '腾讯地图',
-                    desc: 'QQ/微信用户常用',
-                    icon: '🟢',
-                    mobileUrl: `qqmap://map/routeplan?type=drive&from=&to=${name}&tocoord=${lat},${lng}&toaddr=${address}`,
-                    webUrl: `https://map.qq.com/routeplan/index.html?type=drive&to=${name}&tocoord=${lat},${lng}&toaddr=${address}`
-                }
-            ];
-            
-            // 根据设备添加额外选项
-            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-            const isMobile = isIOS || /Android/i.test(navigator.userAgent);
-            
-            if (isIOS) {
-                mapOptions.push({
-                    id: 'apple',
-                    name: '苹果地图',
-                    desc: 'iPhone/iPad 自带',
-                    icon: '🍎',
-                    mobileUrl: `https://maps.apple.com/?q=${query}&ll=${lat},${lng}&z=16`,
-                    webUrl: `https://maps.apple.com/?q=${query}&ll=${lat},${lng}&z=16`
-                });
-            }
-            
-            mapOptions.push({
-                id: 'web',
-                name: '网页导航',
-                desc: '无需安装APP',
-                icon: '🌐',
-                mobileUrl: `https://amap.com/navi?to=${address},${name}&lat=${lat}&lng=${lng}`,
-                webUrl: `https://amap.com/navi?to=${address},${name}&lat=${lat}&lng=${lng}`
-            });
-            
-            optionsList.innerHTML = mapOptions.map(opt => `
-                <div class="map-option-item" onclick="openMap('${opt.id}')">
-                    <div class="map-option-icon ${opt.id}">${opt.icon}</div>
-                    <div class="map-option-info">
-                        <div class="map-option-name">${opt.name}</div>
-                        <div class="map-option-desc">${opt.desc}</div>
-                    </div>
-                    <div class="map-option-arrow">→</div>
-                </div>
-            `).join('');
-            
-            // 保存地图选项到全局变量
-            window.currentMapOptions = mapOptions;
-            
-            document.getElementById('mapOptionsOverlay').classList.add('active');
-        }
-        
-        // 关闭地图选择
-        function closeMapOptions() {
-            document.getElementById('mapOptionsOverlay').classList.remove('active');
-        }
-        
-        // 打开选中的地图
-        function openMap(mapId) {
-            if (!window.currentMapOptions || !currentShop) return;
-            
-            const option = window.currentMapOptions.find(o => o.id === mapId);
-            if (!option) return;
             
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            const url = isMobile ? option.mobileUrl : option.webUrl;
             
-            window.open(url, '_blank');
-            closeMapOptions();
+            if (isMobile) {
+                // 移动端：优先尝试打开APP
+                const appUrl = `amapuri://route?sourceApplication=amap&dlat=${lat}&dlon=${lng}&dname=${name}&daddr=${address}&dev=0`;
+                const webUrl = `https://amap.com/navi?to=${address},${name}&lat=${lat}&lng=${lng}`;
+                
+                // 创建一个隐藏的iframe来尝试打开APP
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = appUrl;
+                document.body.appendChild(iframe);
+                
+                // 如果APP没有打开，2秒后跳转到网页版
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
+                    window.open(webUrl, '_blank');
+                }, 2000);
+            } else {
+                // 桌面端：直接打开网页版
+                const webUrl = `https://amap.com/navi?to=${address},${name}&lat=${lat}&lng=${lng}`;
+                window.open(webUrl, '_blank');
+            }
         }
 
         // 更新统计
