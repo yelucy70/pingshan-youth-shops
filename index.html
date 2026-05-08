@@ -690,7 +690,118 @@
             }
         }
         
-        </style>
+        /* 导航选择弹窗 */
+        .nav-options-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .nav-options-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        .nav-options-modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+        .nav-options-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .nav-options-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #1f2937;
+        }
+        .nav-options-close {
+            width: 32px;
+            height: 32px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .nav-options-close:hover {
+            background: #e5e7eb;
+        }
+        .nav-options-list {
+            padding: 10px;
+        }
+        .nav-option-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            gap: 14px;
+        }
+        .nav-option-item:hover {
+            background: #f0f3ff;
+        }
+        .nav-option-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .nav-option-icon.amap { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%); }
+        .nav-option-icon.baidu { background: linear-gradient(135deg, #2e7ebf 0%, #1a5ca3 100%); }
+        .nav-option-info {
+            flex: 1;
+        }
+        .nav-option-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        .nav-option-desc {
+            font-size: 13px;
+            color: #6b7280;
+        }
+        .nav-option-arrow {
+            color: #9ca3af;
+            font-size: 20px;
+        }
+        
+        @media screen and (max-width: 768px) {
+            .nav-options-overlay {
+                padding: 0;
+                align-items: flex-end;
+            }
+            .nav-options-modal {
+                border-radius: 20px 20px 0 0;
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- 桌面端布局 -->
@@ -777,11 +888,23 @@
                     </div>
                 </div>
                 
-                <button class="nav-button" onclick="navigateToShop()">
+                <button class="nav-button" onclick="showNavOptions()">
                     🗺️ 导航到这里
                 </button>
             </div>
         </div>
+    </div>
+    
+    <!-- 导航选择弹窗 -->
+    <div class="nav-options-overlay" id="navOptionsOverlay">
+        <div class="nav-options-modal">
+            <div class="nav-options-header">
+                <h3>选择导航方式</h3>
+                <button class="nav-options-close" onclick="closeNavOptions()">×</button>
+            </div>
+            <div class="nav-options-list" id="navOptionsList"></div>
+        </div>
+    </div>
     
 
     <script>
@@ -798,7 +921,8 @@
                     "address": "坪山大道2011号潮悦荟广场L1-123号",
                     "coordinate": {"lat": 22.675, "lng": 114.284},
                     "mapPosition": {"x": 2667, "y": 3069},
-                    "navUrl": "https://surl.amap.com/1QL7x0Cq5rp"
+                    "navUrl": "https://surl.amap.com/1QL7x0Cq5rp",
+                    "baiduNavUrl": "https://j.map.baidu.com/fa/o-Xk"
                 },
                 {
                     "id": "002",
@@ -809,7 +933,8 @@
                     "address": "深圳市坪山区坪山大道5019号",
                     "coordinate": {"lat": 22.698, "lng": 114.235},
                     "mapPosition": {"x": 3267, "y": 2672},
-                    "navUrl": "https://surl.amap.com/1QRHkzgR2qo"
+                    "navUrl": "https://surl.amap.com/1QRHkzgR2qo",
+                    "baiduNavUrl": "https://j.map.baidu.com/09/Dr2i"
                 },
                 {
                     "id": "003",
@@ -820,7 +945,8 @@
                     "address": "坪山区宝山第二工业区宝山产业园4栋106",
                     "coordinate": {"lat": 22.686, "lng": 114.248},
                     "mapPosition": {"x": 2876, "y": 2692},
-                    "navUrl": "https://surl.amap.com/1QP4C7ohfCS"
+                    "navUrl": "https://surl.amap.com/1QP4C7ohfCS",
+                    "baiduNavUrl": "https://j.map.baidu.com/10/fkek"
                 },
                 {
                     "id": "004",
@@ -831,7 +957,8 @@
                     "address": "深圳市坪山区马峦街道坪环社区中昌路6-65",
                     "coordinate": {"lat": 22.643, "lng": 114.268},
                     "mapPosition": {"x": 3511, "y": 3173},
-                    "navUrl": "https://surl.amap.com/1Rlz6F4ZdAq"
+                    "navUrl": "https://surl.amap.com/1Rlz6F4ZdAq",
+                    "baiduNavUrl": "https://j.map.baidu.com/53/4vhu"
                 },
                 {
                     "id": "005",
@@ -842,7 +969,8 @@
                     "address": "坪山区石井街道金龟半坝村3号",
                     "coordinate": {"lat": 22.694, "lng": 114.224},
                     "mapPosition": {"x": 4889, "y": 3849},
-                    "navUrl": "https://surl.amap.com/1RmrjKax02I"
+                    "navUrl": "https://surl.amap.com/1RmrjKax02I",
+                    "baiduNavUrl": "https://j.map.baidu.com/2c/hIJM"
                 },
                 {
                     "id": "006",
@@ -853,7 +981,8 @@
                     "address": "广东省深圳市坪山区山路1号101",
                     "coordinate": {"lat": 22.691, "lng": 114.208},
                     "mapPosition": {"x": 3096, "y": 2844},
-                    "navUrl": "https://surl.amap.com/1RoAPzYWgz1"
+                    "navUrl": "https://surl.amap.com/1RoAPzYWgz1",
+                    "baiduNavUrl": "https://j.map.baidu.com/11/scqk"
                 },
                 {
                     "id": "007",
@@ -864,7 +993,8 @@
                     "address": "深圳市坪山区马峦街道江岭社区三河村96号",
                     "coordinate": {"lat": 22.692, "lng": 114.227},
                     "mapPosition": {"x": 3947, "y": 3883},
-                    "navUrl": "https://surl.amap.com/1RvdeqCa6k"
+                    "navUrl": "https://surl.amap.com/1RvdeqCa6k",
+                    "baiduNavUrl": "https://j.map.baidu.com/a9/AFmk"
                 },
                 {
                     "id": "008",
@@ -875,7 +1005,8 @@
                     "address": "深圳市坪山区奥园翡翠东湾一期1栋外围二楼商铺223铺",
                     "coordinate": {"lat": 22.682, "lng": 114.297},
                     "mapPosition": {"x": 4211, "y": 2430},
-                    "navUrl": "https://surl.amap.com/1RpMNWO13gvr"
+                    "navUrl": "https://surl.amap.com/1RpMNWO13gvr",
+                    "baiduNavUrl": "https://j.map.baidu.com/c8/3DnM"
                 },
                 {
                     "id": "009",
@@ -886,7 +1017,8 @@
                     "address": "坪山区坪山大道2007号创新广场群楼113号",
                     "coordinate": {"lat": 22.629, "lng": 114.254},
                     "mapPosition": {"x": 3092, "y": 2472},
-                    "navUrl": "https://surl.amap.com/1Rz8t4Cc90p"
+                    "navUrl": "https://surl.amap.com/1Rz8t4Cc90p",
+                    "baiduNavUrl": "https://j.map.baidu.com/8a/ANDf"
                 },
                 {
                     "id": "010",
@@ -897,7 +1029,8 @@
                     "address": "深圳市坪山区马峦街道坪环社区大万万安东街23号北边101、102",
                     "coordinate": {"lat": 22.628, "lng": 114.236},
                     "mapPosition": {"x": 3086, "y": 3303},
-                    "navUrl": "https://surl.amap.com/1RDdtRgre11"
+                    "navUrl": "https://surl.amap.com/1RDdtRgre11",
+                    "baiduNavUrl": "https://j.map.baidu.com/50/F7Wc"
                 },
                 {
                     "id": "011",
@@ -908,7 +1041,8 @@
                     "address": "坪山区马峦街道牛盛路4号",
                     "coordinate": {"lat": 22.617, "lng": 114.225},
                     "mapPosition": {"x": 2684, "y": 3275},
-                    "navUrl": "https://surl.amap.com/1RGIpoe1f7v2"
+                    "navUrl": "https://surl.amap.com/1RGIpoe1f7v2",
+                    "baiduNavUrl": "https://j.map.baidu.com/8b/5Jhk"
                 },
                 {
                     "id": "012",
@@ -919,7 +1053,8 @@
                     "address": "深圳市坪山区碧岭街道碧岭社区新榕路127-1",
                     "coordinate": {"lat": 22.625, "lng": 114.264},
                     "mapPosition": {"x": 2227, "y": 3501},
-                    "navUrl": "https://surl.amap.com/1RIItTIl2Ni"
+                    "navUrl": "https://surl.amap.com/1RIItTIl2Ni",
+                    "baiduNavUrl": "https://j.map.baidu.com/10/Wldk"
                 },
                 {
                     "id": "013",
@@ -930,7 +1065,8 @@
                     "address": "深圳市坪山区碧岭街道沙湖社区碧沙北路26号蔚蓝左岸2栋2单元S110",
                     "coordinate": {"lat": 22.622, "lng": 114.275},
                     "mapPosition": {"x": 2861, "y": 3384},
-                    "navUrl": "https://surl.amap.com/1RIXKPoG8eu"
+                    "navUrl": "https://surl.amap.com/1RIXKPoG8eu",
+                    "baiduNavUrl": "https://j.map.baidu.com/a4/eulM"
                 },
                 {
                     "id": "014",
@@ -941,7 +1077,8 @@
                     "address": "深圳市坪山区龙田街道老坑社区井水龙新一巷5、6号102",
                     "coordinate": {"lat": 22.663, "lng": 114.206},
                     "mapPosition": {"x": 4036, "y": 1771},
-                    "navUrl": "https://surl.amap.com/1SfrckO173WF"
+                    "navUrl": "https://surl.amap.com/1SfrckO173WF",
+                    "baiduNavUrl": "https://j.map.baidu.com/bb/SJnM"
                 },
                 {
                     "id": "015",
@@ -952,7 +1089,8 @@
                     "address": "深圳市坪山区江岭三河村五巷十号一楼",
                     "coordinate": {"lat": 22.615, "lng": 114.251},
                     "mapPosition": {"x": 3752, "y": 3784},
-                    "navUrl": "https://surl.amap.com/1So6ZcS9ekO"
+                    "navUrl": "https://surl.amap.com/1So6ZcS9ekO",
+                    "baiduNavUrl": "https://j.map.baidu.com/c4/O0Qi"
                 },
                 {
                     "id": "016",
@@ -963,7 +1101,8 @@
                     "address": "深圳市坪山区坪山街道和平社区团结路10号111",
                     "coordinate": {"lat": 22.657, "lng": 114.227},
                     "mapPosition": {"x": 3274, "y": 2957},
-                    "navUrl": "https://surl.amap.com/1Sophrs169A5"
+                    "navUrl": "https://surl.amap.com/1Sophrs169A5",
+                    "baiduNavUrl": "https://j.map.baidu.com/1c/ovQk"
                 },
                 {
                     "id": "017",
@@ -974,7 +1113,8 @@
                     "address": "深圳市坪山区石井街道金龟社区金地西区3号101",
                     "coordinate": {"lat": 22.629, "lng": 114.29},
                     "mapPosition": {"x": 4351, "y": 2883},
-                    "navUrl": "https://surl.amap.com/i05aRwC8cEY"
+                    "navUrl": "https://surl.amap.com/i05aRwC8cEY",
+                    "baiduNavUrl": "https://j.map.baidu.com/5c/jyai"
                 },
                 {
                     "id": "018",
@@ -985,7 +1125,8 @@
                     "address": "深圳市坪山区石井街道金龟社区金地西区9号",
                     "coordinate": {"lat": 22.623, "lng": 114.229},
                     "mapPosition": {"x": 4558, "y": 3927},
-                    "navUrl": "https://surl.amap.com/1SxTvgued5D"
+                    "navUrl": "https://surl.amap.com/1SxTvgued5D",
+                    "baiduNavUrl": "https://j.map.baidu.com/29/z7Gk"
                 },
                 {
                     "id": "019",
@@ -996,7 +1137,8 @@
                     "address": "吉祥四路东部花卉中心（艺海时光·小院）",
                     "coordinate": {"lat": 22.665, "lng": 114.239},
                     "mapPosition": {"x": 4476, "y": 2579},
-                    "navUrl": "https://surl.amap.com/1Tdnd9Er77u"
+                    "navUrl": "https://surl.amap.com/1Tdnd9Er77u",
+                    "baiduNavUrl": "https://j.map.baidu.com/89/rZai"
                 },
                 {
                     "id": "020",
@@ -1007,7 +1149,8 @@
                     "address": "坪山老街彩虹路3号",
                     "coordinate": {"lat": 22.603, "lng": 114.218},
                     "mapPosition": {"x": 3209, "y": 3145},
-                    "navUrl": "https://surl.amap.com/1To2WJkUasT"
+                    "navUrl": "https://surl.amap.com/1To2WJkUasT",
+                    "baiduNavUrl": "https://j.map.baidu.com/5b/EfnM"
                 },
                 {
                     "id": "021",
@@ -1018,7 +1161,8 @@
                     "address": "深圳市坪山区石井街道岭脚老村4号",
                     "coordinate": {"lat": 22.651, "lng": 114.274},
                     "mapPosition": {"x": 4090, "y": 2782},
-                    "navUrl": "https://surl.amap.com/1Tu7eAW1u2gy"
+                    "navUrl": "https://surl.amap.com/1Tu7eAW1u2gy",
+                    "baiduNavUrl": "https://j.map.baidu.com/cc/JtuM"
                 },
                 {
                     "id": "022",
@@ -1029,7 +1173,8 @@
                     "address": "深圳市坪山区马峦街道坪山雕塑艺术创艺园工作室1栋",
                     "coordinate": {"lat": 22.654, "lng": 114.298},
                     "mapPosition": {"x": 3280, "y": 3442},
-                    "navUrl": "https://surl.amap.com/1TxCpJEx2D3"
+                    "navUrl": "https://surl.amap.com/1TxCpJEx2D3",
+                    "baiduNavUrl": "https://j.map.baidu.com/e6/NCnM"
                 },
                 {
                     "id": "023",
@@ -1040,7 +1185,8 @@
                     "address": "坪山区碧岭街道马峦郊野公园观瀑路101号",
                     "coordinate": {"lat": 22.649, "lng": 114.219},
                     "mapPosition": {"x": 2946, "y": 4338},
-                    "navUrl": "https://surl.amap.com/1Ty3e4asdq6"
+                    "navUrl": "https://surl.amap.com/1Ty3e4asdq6",
+                    "baiduNavUrl": "https://j.map.baidu.com/a3/L6lM"
                 },
                 {
                     "id": "024",
@@ -1051,7 +1197,8 @@
                     "address": "坪山区潮悦荟2楼243号",
                     "coordinate": {"lat": 22.617, "lng": 114.218},
                     "mapPosition": {"x": 2883, "y": 3177},
-                    "navUrl": "https://surl.amap.com/1TJkGlQC9AO"
+                    "navUrl": "https://surl.amap.com/1TJkGlQC9AO",
+                    "baiduNavUrl": "https://j.map.baidu.com/74/SxlM"
                 },
                 {
                     "id": "025",
@@ -1062,7 +1209,8 @@
                     "address": "坪山区坑梓街道沙田社区廖和路36号一二楼",
                     "coordinate": {"lat": 22.686, "lng": 114.295},
                     "mapPosition": {"x": 4403, "y": 1204},
-                    "navUrl": "https://surl.amap.com/1TT5YY21p7kF"
+                    "navUrl": "https://surl.amap.com/1TT5YY21p7kF",
+                    "baiduNavUrl": "https://j.map.baidu.com/03/ktnM"
                 },
                 {
                     "id": "026",
@@ -1073,7 +1221,8 @@
                     "address": "深圳市坪山区石井街道金龟社区田作村20号",
                     "coordinate": {"lat": 22.615, "lng": 114.219},
                     "mapPosition": {"x": 5171, "y": 3757},
-                    "navUrl": "https://surl.amap.com/1THtKXE1zbNA"
+                    "navUrl": "https://surl.amap.com/1THtKXE1zbNA",
+                    "baiduNavUrl": "https://j.map.baidu.com/90/WSMM"
                 },
                 {
                     "id": "027",
@@ -1084,7 +1233,8 @@
                     "address": "坪山大道创新广场裙楼2楼（候机楼2F）",
                     "coordinate": {"lat": 22.624, "lng": 114.224},
                     "mapPosition": {"x": 3568, "y": 2392},
-                    "navUrl": "https://surl.amap.com/1TXmHyG180HF"
+                    "navUrl": "https://surl.amap.com/1TXmHyG180HF",
+                    "baiduNavUrl": "https://j.map.baidu.com/80/-fhk"
                 },
                 {
                     "id": "028",
@@ -1095,7 +1245,8 @@
                     "address": "深圳市坪山区龙田街道竹坑社区石湖村2-1号",
                     "coordinate": {"lat": 22.636, "lng": 114.221},
                     "mapPosition": {"x": 4465, "y": 2264},
-                    "navUrl": "https://surl.amap.com/1TXGNEK110EN"
+                    "navUrl": "https://surl.amap.com/1TXGNEK110EN",
+                    "baiduNavUrl": "https://j.map.baidu.com/1a/U6Lk"
                 },
                 {
                     "id": "029",
@@ -1106,7 +1257,8 @@
                     "address": "坪山区六联社区东纵路409号2楼",
                     "coordinate": {"lat": 22.69, "lng": 114.222},
                     "mapPosition": {"x": 2912, "y": 2954},
-                    "navUrl": "https://surl.amap.com/1TY0TKOueag"
+                    "navUrl": "https://surl.amap.com/1TY0TKOueag",
+                    "baiduNavUrl": "https://j.map.baidu.com/ff/B8lM"
                 }
             ]
         };
@@ -1448,24 +1600,59 @@
             });
         }
 
-        // 导航到店铺
-        function navigateToShop() {
+        // 显示导航选项
+        function showNavOptions() {
             if (!currentShop) return;
             
-            let url = '';
+            const navOptionsList = document.getElementById('navOptionsList');
             
-            // 如果店铺有自定义导航链接，使用自定义链接
-            if (currentShop.navUrl && currentShop.navUrl.trim()) {
-                url = currentShop.navUrl;
-            } else {
-                // 否则使用自动生成的链接
-                const { lat, lng } = currentShop.coordinate;
-                const address = encodeURIComponent(currentShop.address);
-                const name = encodeURIComponent(currentShop.name);
-                url = `https://amap.com/navi?to=${address},${name}&lat=${lat}&lng=${lng}`;
-            }
+            const navOptions = [
+                {
+                    id: 'amap',
+                    name: '高德地图',
+                    desc: '国内导航首选',
+                    icon: '🗺️',
+                    url: currentShop.navUrl || `https://amap.com/navi?to=${encodeURIComponent(currentShop.address)},${encodeURIComponent(currentShop.name)}`
+                },
+                {
+                    id: 'baidu',
+                    name: '百度地图',
+                    desc: '另一个流行选择',
+                    icon: '📍',
+                    url: currentShop.baiduNavUrl || `https://j.map.baidu.com`
+                }
+            ];
             
-            window.open(url, '_blank');
+            navOptionsList.innerHTML = navOptions.map(opt => `
+                <div class="nav-option-item" onclick="openNav('${opt.id}')">
+                    <div class="nav-option-icon ${opt.id}">${opt.icon}</div>
+                    <div class="nav-option-info">
+                        <div class="nav-option-name">${opt.name}</div>
+                        <div class="nav-option-desc">${opt.desc}</div>
+                    </div>
+                    <div class="nav-option-arrow">→</div>
+                </div>
+            `).join('');
+            
+            window.currentNavOptions = navOptions;
+            
+            document.getElementById('navOptionsOverlay').classList.add('active');
+        }
+        
+        // 关闭导航选项
+        function closeNavOptions() {
+            document.getElementById('navOptionsOverlay').classList.remove('active');
+        }
+        
+        // 打开选中的导航
+        function openNav(navId) {
+            if (!window.currentNavOptions || !currentShop) return;
+            
+            const option = window.currentNavOptions.find(o => o.id === navId);
+            if (!option) return;
+            
+            window.open(option.url, '_blank');
+            closeNavOptions();
         }
 
         // 更新统计
