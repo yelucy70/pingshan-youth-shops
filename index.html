@@ -1499,10 +1499,10 @@
                     }
                     
                     if (isMobile) {
-                        // 移动端：优先尝试打开APP，使用坐标和地址直接定位到店铺
-                        const appUrl = `amapuri://viewMap?sourceApplication=amap&poiname=${name}&lat=${destLat}&lon=${destLng}&dev=0`;
-                        // 移动端网页版：直接跳转到导航页面，使用经纬度定位
-                        const webUrl = `https://amap.com/navi/?dest=${destLat},${destLng},${address}&destName=${name}&navtype=car`;
+                        // 移动端：优先尝试打开APP，使用路线规划URL Scheme
+                        const appUrl = `amapuri://route/plan?dlat=${destLat}&dlon=${destLng}&dname=${name}&dev=0&t=1`;
+                        // 移动端网页版：使用高德地图官方导航URL
+                        const webUrl = `https://uri.amap.com/navigation?to=${destLat},${destLng},${address}&mode=car&src=pingshan-youth-shops`;
                         
                         // 创建一个隐藏的iframe来尝试打开APP
                         const iframe = document.createElement('iframe');
@@ -1524,8 +1524,8 @@
                 .catch(error => {
                     // 如果地理编码失败，使用原始坐标
                     if (isMobile) {
-                        const appUrl = `amapuri://viewMap?sourceApplication=amap&poiname=${name}&lat=${lat}&lon=${lng}&dev=0`;
-                        const webUrl = `https://amap.com/navi/?dest=${lat},${lng},${address}&destName=${name}&navtype=car`;
+                        const appUrl = `amapuri://route/plan?dlat=${lat}&dlon=${lng}&dname=${name}&dev=0&t=1`;
+                        const webUrl = `https://uri.amap.com/navigation?to=${lat},${lng},${address}&mode=car&src=pingshan-youth-shops`;
                         
                         const iframe = document.createElement('iframe');
                         iframe.style.display = 'none';
