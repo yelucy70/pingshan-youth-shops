@@ -1483,9 +1483,9 @@
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             
             if (isMobile) {
-                // 移动端：优先尝试打开APP
-                const appUrl = `amapuri://route?sourceApplication=amap&dlat=${lat}&dlon=${lng}&dname=${name}&daddr=${address}&dev=0`;
-                const webUrl = `https://amap.com/navi?to=${address},${name}&lat=${lat}&lng=${lng}`;
+                // 移动端：优先尝试打开APP，使用更精确的导航参数
+                const appUrl = `amapuri://route?sourceApplication=amap&dlat=${lat}&dlon=${lng}&daddr=${address}&dname=${name}&dev=0&t=0`;
+                const webUrl = `https://m.amap.com/navi/?dest=${address}&destName=${name}&lat=${lat}&lng=${lng}`;
                 
                 // 创建一个隐藏的iframe来尝试打开APP
                 const iframe = document.createElement('iframe');
@@ -1500,7 +1500,7 @@
                 }, 2000);
             } else {
                 // 桌面端：直接打开网页版
-                const webUrl = `https://amap.com/navi?to=${address},${name}&lat=${lat}&lng=${lng}`;
+                const webUrl = `https://amap.com/navi/?dest=${address}&destName=${name}&lat=${lat}&lng=${lng}`;
                 window.open(webUrl, '_blank');
             }
         }
