@@ -1479,14 +1479,15 @@
             const { lat, lng } = currentShop.coordinate;
             const name = encodeURIComponent(currentShop.name);
             const address = encodeURIComponent(currentShop.address);
+            const query = encodeURIComponent(currentShop.address);
             
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             
             if (isMobile) {
-                // 移动端：优先尝试打开APP
-                const appUrl = `amapuri://viewMap?sourceApplication=amap&poiname=${name}&lat=${lat}&lon=${lng}&dev=0`;
-                // 移动端网页版：使用手机版导航页面
-                const webUrl = `https://uri.amap.com/marker?position=${lng},${lat}&name=${name}&address=${address}&coordinate=gaode&callnative=0`;
+                // 移动端：优先尝试打开APP，使用地址搜索
+                const appUrl = `amapuri://search?sourceApplication=amap&keywords=${query}&dev=0`;
+                // 移动端网页版：使用地址搜索
+                const webUrl = `https://m.amap.com/search?query=${query}`;
                 
                 // 创建一个隐藏的iframe来尝试打开APP
                 const iframe = document.createElement('iframe');
@@ -1500,8 +1501,8 @@
                     window.open(webUrl, '_blank');
                 }, 2000);
             } else {
-                // 桌面端：打开网页版定位页面
-                const webUrl = `https://uri.amap.com/marker?position=${lng},${lat}&name=${name}&address=${address}&coordinate=gaode&callnative=0`;
+                // 桌面端：使用地址搜索
+                const webUrl = `https://www.amap.com/search?query=${query}`;
                 window.open(webUrl, '_blank');
             }
         }
