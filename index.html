@@ -392,6 +392,14 @@
             color: #374151;
             line-height: 1.6;
         }
+        .modal-address-link {
+            color: #667eea;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-address-link:hover {
+            text-decoration: underline;
+        }
         .modal-close {
             position: absolute;
             top: 12px;
@@ -890,7 +898,7 @@
                 <div class="modal-info">
                     <div class="modal-info-item">
                         <div class="modal-info-icon">📍</div>
-                        <div class="modal-info-text" id="modalAddress"></div>
+                        <a class="modal-info-text modal-address-link" id="modalAddress" href="#" target="_blank"></a>
                     </div>
                 </div>
                 
@@ -1505,7 +1513,15 @@
                 `<span class="modal-category">${c}</span>`
             ).join('');
             document.getElementById('modalDescription').textContent = currentShop.description;
-            document.getElementById('modalAddress').textContent = currentShop.address;
+            
+            // 设置地址链接 - 点击地址跳转到高德地图
+            const addressElement = document.getElementById('modalAddress');
+            addressElement.textContent = currentShop.address;
+            const { lat, lng } = currentShop.coordinate;
+            const name = encodeURIComponent(currentShop.name);
+            const address = encodeURIComponent(currentShop.address);
+            const amapUrl = `https://uri.amap.com/marker?position=${lng},${lat}&name=${name}&address=${address}&coordinate=gaode&callnative=1`;
+            addressElement.href = amapUrl;
             
             modalOverlay.classList.add('active');
         }
