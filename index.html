@@ -1564,7 +1564,7 @@
                     desc: '国内导航首选',
                     icon: '🗺️',
                     mobileUrl: `https://uri.amap.com/marker?position=${lng},${lat}&name=${name}&address=${address}&coordinate=gaode&callnative=1`,
-                    webUrl: `https://www.amap.com/search?query=${name}&geoobj=${lng},${lat}`
+                    webUrl: `https://www.amap.com/search?query=${address}&geoobj=${lng},${lat}`
                 },
                 {
                     id: 'baidu',
@@ -1580,7 +1580,7 @@
                     desc: 'QQ/微信用户常用',
                     icon: '🟢',
                     mobileUrl: `qqmap://map/marker?marker=coord:${lat},${lng};title:${name};addr:${address}`,
-                    webUrl: `https://map.qq.com/?marker=1,${lat},${lng},${name}`
+                    webUrl: `https://map.qq.com/?marker=1,${lat},${lng},${name}&addr=${address}`
                 }
             ];
             
@@ -1594,8 +1594,8 @@
                     name: '苹果地图',
                     desc: 'iPhone/iPad 自带',
                     icon: '🍎',
-                    mobileUrl: `https://maps.apple.com/?q=${name}&ll=${lat},${lng}`,
-                    webUrl: `https://maps.apple.com/?q=${name}&ll=${lat},${lng}`
+                    mobileUrl: `https://maps.apple.com/?q=${address}&ll=${lat},${lng}`,
+                    webUrl: `https://maps.apple.com/?q=${address}&ll=${lat},${lng}`
                 });
             }
             
