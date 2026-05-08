@@ -555,20 +555,20 @@
                 flex: none;
                 overflow: auto;
                 position: relative;
-                touch-action: pan-x pan-y pinch-zoom;
+                touch-action: none;
             }
             .map-container .map-wrapper {
                 display: inline-block;
                 position: relative;
+                width: 100%;
                 transform-origin: center center;
                 transition: transform 0.1s ease-out;
             }
             .map-container img {
                 display: block;
-                max-width: none;
-                max-height: none;
                 width: 100%;
                 height: auto;
+                pointer-events: none;
             }
             
             .filter-tabs {
@@ -1237,41 +1237,25 @@
     function setupMobileMapZoom() {
         if (!mobileMapWrapper) return;
         
-        let initialScale = 1;
         let currentScale = 1;
-        let startX = 0;
-        let startY = 0;
-        let isTouching = false;
-        let touchStartDistance = 0;
         let lastTouchDistance = 0;
         
-        // 触摸开始
         mobileMapWrapper.addEventListener('touchstart', function(e) {
-            if (e.touches.length === 1) {
-                isTouching = true;
-                startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
-            } else if (e.touches.length === 2) {
-                touchStartDistance = getDistance(e.touches[0], e.touches[1]);
-                lastTouchDistance = touchStartDistance;
+            if (e.touches.length === 2) {
+                lastTouchDistance = getDistance(e.touches[0], e.touches[1]);
             }
         });
         
-        // 触摸移动
         mobileMapWrapper.addEventListener('touchmove', function(e) {
             if (e.touches.length === 2) {
                 e.preventDefault();
                 const currentDistance = getDistance(e.touches[0], e.touches[1]);
                 const scaleChange = currentDistance / lastTouchDistance;
                 currentScale = Math.max(1, Math.min(4, currentScale * scaleChange));
-                applyMobileZoom(currentScale);
+                mobileZoom = currentScale;
+                mobileMapWrapper.style.transform = `scale(${currentScale})`;
                 lastTouchDistance = currentDistance;
             }
-        });
-        
-        // 触摸结束
-        mobileMapWrapper.addEventListener('touchend', function() {
-            isTouching = false;
         });
     }
     
@@ -1280,24 +1264,6 @@
         const dx = touch2.clientX - touch1.clientX;
         const dy = touch2.clientY - touch1.clientY;
         return Math.sqrt(dx * dx + dy * dy);
-    }
-    
-    // 应用缩放
-    function applyMobileZoom(scale) {
-        if (!mobileMapWrapper) return;
-        mobileZoom = scale;
-        mobileMapWrapper.style.transform = `scale(${scale})`;
-        mobileMapWrapper.style.width = `${100 / scale}%`;
-        mobileMapWrapper.style.height = 'auto';
-        updateMobileMarkerPositions();
-    }
-    
-    // 更新手机端标记点位置
-    function updateMobileMarkerPositions() {
-        const markers = document.querySelectorAll('#mobileMapWrapper .marker');
-        markers.forEach(marker => {
-            marker.style.transform = `translate(-50%, -50%) scale(${mobileZoom})`;
-        });
     }
     
     // 渲染筛选标签
@@ -1394,8 +1360,12 @@
                 const marker = document.createElement('div');
                 marker.className = 'marker';
                 marker.dataset.id = shop.id;
+                marker.style.position = 'absolute';
                 marker.style.left = (shop.mapPosition.x * scale) + 'px';
                 marker.style.top = (shop.mapPosition.y * scale) + 'px';
+                marker.style.transform = 'translate(-50%, -50%)';
+                marker.style.transformOrigin = 'center center';
+                marker.style.willChange = 'transform';
                 marker.innerHTML = `<span class="marker-number">${parseInt(shop.id)}</span>`;
                 marker.addEventListener('click', () => selectShop(shop.id));
                 marker.addEventListener('mouseenter', (e) => {
