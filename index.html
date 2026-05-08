@@ -1551,18 +1551,11 @@
         document.getElementById('modalOverlay').addEventListener('click', (e) => {
             if (e.target.id === 'modalOverlay') closeModal();
         });
-        
-        // 点击地图选择外部关闭
-        document.getElementById('mapOptionsOverlay').addEventListener('click', (e) => {
-            if (e.target.id === 'mapOptionsOverlay') closeMapOptions();
-        });
 
         // ESC关闭
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (document.getElementById('mapOptionsOverlay').classList.contains('active')) {
-                    closeMapOptions();
-                } else if (document.getElementById('modalOverlay').classList.contains('active')) {
+                if (document.getElementById('modalOverlay').classList.contains('active')) {
                     closeModal();
                 }
             }
