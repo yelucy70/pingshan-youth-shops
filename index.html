@@ -1472,7 +1472,7 @@
             });
         }
 
-        // 直接打开高德地图导航
+        // 直接打开高德地图网页版导航
         function openAmap() {
             if (!currentShop) return;
             
@@ -1480,8 +1480,6 @@
             const { lat, lng } = currentShop.coordinate;
             const name = encodeURIComponent(currentShop.name);
             const address = encodeURIComponent(currentShop.address);
-            
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             
             // 使用地理编码API获取精确坐标
             fetch(`https://restapi.amap.com/v3/geocode/geo?address=${address}&key=${API_KEY}`)
@@ -1498,48 +1496,14 @@
                         destLat = coords[1];
                     }
                     
-                    if (isMobile) {
-                        // 移动端：优先尝试打开APP，使用路线规划URL Scheme
-                        const appUrl = `amapuri://route/plan?dlat=${destLat}&dlon=${destLng}&dname=${name}&dev=0&t=1`;
-                        // 移动端网页版：使用高德地图官方导航URL
-                        const webUrl = `https://uri.amap.com/navigation?to=${destLat},${destLng},${address}&mode=car&src=pingshan-youth-shops`;
-                        
-                        // 创建一个隐藏的iframe来尝试打开APP
-                        const iframe = document.createElement('iframe');
-                        iframe.style.display = 'none';
-                        iframe.src = appUrl;
-                        document.body.appendChild(iframe);
-                        
-                        // 如果APP没有打开，2秒后跳转到网页版导航
-                        setTimeout(() => {
-                            document.body.removeChild(iframe);
-                            window.location.href = webUrl;
-                        }, 2000);
-                    } else {
-                        // 桌面端：使用搜索页面，直接定位到地址
-                        const webUrl = `https://ditu.amap.com/search?query=${address}&location=${destLng},${destLat}&zoom=17`;
-                        window.open(webUrl, '_blank');
-                    }
+                    // 直接跳转到高德地图网页版导航，使用经纬度和地址定位
+                    const webUrl = `https://uri.amap.com/navigation?to=${destLat},${destLng},${address}&mode=car&src=pingshan-youth-shops`;
+                    window.open(webUrl, '_blank');
                 })
                 .catch(error => {
                     // 如果地理编码失败，使用原始坐标
-                    if (isMobile) {
-                        const appUrl = `amapuri://route/plan?dlat=${lat}&dlon=${lng}&dname=${name}&dev=0&t=1`;
-                        const webUrl = `https://uri.amap.com/navigation?to=${lat},${lng},${address}&mode=car&src=pingshan-youth-shops`;
-                        
-                        const iframe = document.createElement('iframe');
-                        iframe.style.display = 'none';
-                        iframe.src = appUrl;
-                        document.body.appendChild(iframe);
-                        
-                        setTimeout(() => {
-                            document.body.removeChild(iframe);
-                            window.location.href = webUrl;
-                        }, 2000);
-                    } else {
-                        const webUrl = `https://ditu.amap.com/search?query=${address}&location=${lng},${lat}&zoom=17`;
-                        window.open(webUrl, '_blank');
-                    }
+                    const webUrl = `https://uri.amap.com/navigation?to=${lat},${lng},${address}&mode=car&src=pingshan-youth-shops`;
+                    window.open(webUrl, '_blank');
                 });
         }
 
