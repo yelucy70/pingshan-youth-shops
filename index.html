@@ -1480,14 +1480,30 @@
             const name = encodeURIComponent(currentShop.name);
             const address = encodeURIComponent(currentShop.address);
             
-            // 构造百度地图链接（更兼容微信）
-            const baiduUrl = `https://map.baidu.com/search/${address}%20${name}/?center=${lat},${lng}&zoom=17`;
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             
-            // 创建一个新的a标签来触发跳转
-            const link = document.createElement('a');
-            link.href = baiduUrl;
-            link.target = '_blank';
-            link.click();
+            if (isMobile) {
+                // 移动端：优先尝试打开APP
+                const appUrl = `amapuri://viewMap?sourceApplication=amap&poiname=${name}&lat=${lat}&lon=${lng}&dev=0`;
+                // 移动端网页版：使用手机版导航页面
+                const webUrl = `https://uri.amap.com/marker?position=${lng},${lat}&name=${name}&address=${address}&coordinate=gaode&callnative=0`;
+                
+                // 创建一个隐藏的iframe来尝试打开APP
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = appUrl;
+                document.body.appendChild(iframe);
+                
+                // 如果APP没有打开，2秒后跳转到网页版
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
+                    window.open(webUrl, '_blank');
+                }, 2000);
+            } else {
+                // 桌面端：打开网页版定位页面
+                const webUrl = `https://uri.amap.com/marker?position=${lng},${lat}&name=${name}&address=${address}&coordinate=gaode&callnative=0`;
+                window.open(webUrl, '_blank');
+            }
         }
 
         // 更新统计
