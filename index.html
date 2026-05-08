@@ -392,14 +392,6 @@
             color: #374151;
             line-height: 1.6;
         }
-        .modal-address-link {
-            color: #667eea;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .modal-address-link:hover {
-            text-decoration: underline;
-        }
         .modal-close {
             position: absolute;
             top: 12px;
@@ -898,7 +890,7 @@
                 <div class="modal-info">
                     <div class="modal-info-item">
                         <div class="modal-info-icon">📍</div>
-                        <a class="modal-info-text modal-address-link" id="modalAddress" href="#" target="_blank"></a>
+                        <div class="modal-info-text" id="modalAddress"></div>
                     </div>
                 </div>
                 
@@ -1513,15 +1505,7 @@
                 `<span class="modal-category">${c}</span>`
             ).join('');
             document.getElementById('modalDescription').textContent = currentShop.description;
-            
-            // 设置地址链接 - 点击地址跳转到高德地图
-            const addressElement = document.getElementById('modalAddress');
-            addressElement.textContent = currentShop.address;
-            const { lat, lng } = currentShop.coordinate;
-            const name = encodeURIComponent(currentShop.name);
-            const address = encodeURIComponent(currentShop.address);
-            const amapUrl = `https://uri.amap.com/marker?position=${lng},${lat}&name=${name}&address=${address}&coordinate=gaode&callnative=1`;
-            addressElement.href = amapUrl;
+            document.getElementById('modalAddress').textContent = currentShop.address;
             
             modalOverlay.classList.add('active');
         }
@@ -1571,6 +1555,7 @@
             const { lat, lng } = currentShop.coordinate;
             const name = encodeURIComponent(currentShop.name);
             const address = encodeURIComponent(currentShop.address);
+            const query = encodeURIComponent(currentShop.address + ' ' + currentShop.name);
             
             // 地图选项配置
             const mapOptions = [
@@ -1579,24 +1564,24 @@
                     name: '高德地图',
                     desc: '国内导航首选',
                     icon: '🗺️',
-                    mobileUrl: `https://uri.amap.com/marker?position=${lng},${lat}&name=${name}&address=${address}&coordinate=gaode&callnative=1`,
-                    webUrl: `https://www.amap.com/search?query=${address}&geoobj=${lng},${lat}`
+                    mobileUrl: `amapuri://route?sourceApplication=amap&dlat=${lat}&dlon=${lng}&dname=${name}&daddr=${address}&dev=0`,
+                    webUrl: `https://amap.com/navi?to=${address},${name}&lat=${lat}&lng=${lng}`
                 },
                 {
                     id: 'baidu',
                     name: '百度地图',
                     desc: '另一个流行选择',
                     icon: '📍',
-                    mobileUrl: `baidumap://map/navi?location=${lat},${lng}&title=${name}&content=${address}&coord_type=gcj02`,
-                    webUrl: `https://map.baidu.com/mobile/webapp/search/index/search?q=${address}&location=${lat},${lng}`
+                    mobileUrl: `baidumap://map/direction?destination=name:${name}|latlng:${lat},${lng}|address:${address}&mode=driving`,
+                    webUrl: `https://map.baidu.com/direction?destination=name:${name}|latlng:${lat},${lng}|address:${address}&mode=driving`
                 },
                 {
                     id: 'tencent',
                     name: '腾讯地图',
                     desc: 'QQ/微信用户常用',
                     icon: '🟢',
-                    mobileUrl: `qqmap://map/routeplan?type=drive&from=我的位置&to=${name}&tocoord=${lat},${lng}&addr=${address}`,
-                    webUrl: `https://map.qq.com/m/index.html?search=${address}&loc=${lat},${lng}`
+                    mobileUrl: `qqmap://map/routeplan?type=drive&from=&to=${name}&tocoord=${lat},${lng}&toaddr=${address}`,
+                    webUrl: `https://map.qq.com/routeplan/index.html?type=drive&to=${name}&tocoord=${lat},${lng}&toaddr=${address}`
                 }
             ];
             
@@ -1610,8 +1595,8 @@
                     name: '苹果地图',
                     desc: 'iPhone/iPad 自带',
                     icon: '🍎',
-                    mobileUrl: `https://maps.apple.com/?q=${address}&ll=${lat},${lng}`,
-                    webUrl: `https://maps.apple.com/?q=${address}&ll=${lat},${lng}`
+                    mobileUrl: `https://maps.apple.com/?q=${query}&ll=${lat},${lng}&z=16`,
+                    webUrl: `https://maps.apple.com/?q=${query}&ll=${lat},${lng}&z=16`
                 });
             }
             
@@ -1620,8 +1605,8 @@
                 name: '网页导航',
                 desc: '无需安装APP',
                 icon: '🌐',
-                mobileUrl: `https://www.amap.com/search?query=${address}&geoobj=${lng},${lat}`,
-                webUrl: `https://www.amap.com/search?query=${address}&geoobj=${lng},${lat}`
+                mobileUrl: `https://www.amap.com/search?query=${name}&geoobj=${lng},${lat}`,
+                webUrl: `https://www.amap.com/search?query=${name}&geoobj=${lng},${lat}`
             });
             
             optionsList.innerHTML = mapOptions.map(opt => `
@@ -1656,14 +1641,8 @@
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             const url = isMobile ? option.mobileUrl : option.webUrl;
             
+            window.open(url, '_blank');
             closeMapOptions();
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.target = '_blank';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
         }
 
         // 更新统计
