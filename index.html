@@ -630,14 +630,21 @@
                 align-items: flex-end;
             }
             
+            .modal {
+                max-height: 95vh;
+                width: 100%;
+                border-radius: 20px 20px 0 0;
+            }
+            
             .image-slider {
                 aspect-ratio: 1/1;
                 height: auto;
+                max-height: 60vw;
             }
             
             .modal-content {
                 padding: 20px;
-                max-height: 50vh;
+                max-height: calc(95vh - 60vw - 60px);
                 overflow-y: auto;
             }
             
@@ -1382,6 +1389,18 @@
         
         // 切换店铺详情展开/收起
         function toggleShopDetail(shopId) {
+            // 收起所有其他店铺详情
+            document.querySelectorAll('.mobile-shop-detail').forEach(d => {
+                d.style.display = 'none';
+            });
+            document.querySelectorAll('.mobile-shop-arrow').forEach(a => {
+                a.style.transform = 'rotate(0deg)';
+            });
+            
+            // 激活当前店铺的标记点
+            selectShop(shopId);
+            
+            // 展开当前店铺详情
             const detail = document.getElementById(`detail-${shopId}`);
             const arrow = document.querySelector(`[data-id="${shopId}"] .mobile-shop-arrow`);
             
