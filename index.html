@@ -1572,7 +1572,7 @@
                     desc: '另一个流行选择',
                     icon: '📍',
                     mobileUrl: `bdapp://map/marker?location=${lat},${lng}&title=${name}&content=${address}&coord_type=gcj02&src=andr.baidu.openAPIdemo`,
-                    webUrl: `https://map.baidu.com/marker?location=${lat},${lng}&title=${name}&content=${address}&output=html`
+                    webUrl: `https://map.baidu.com/search/${encodeURIComponent(address)}?location=${lat},${lng}`
                 },
                 {
                     id: 'tencent',
