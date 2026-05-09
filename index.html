@@ -801,6 +801,92 @@
                 max-width: 100%;
             }
         }
+        
+        /* 图片放大弹窗 */
+        .image-zoom-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(8px);
+            z-index: 1200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            cursor: zoom-out;
+        }
+        .image-zoom-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        .image-zoom-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            cursor: zoom-out;
+            animation: zoomIn 0.3s ease;
+        }
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .image-zoom-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .image-zoom-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+        .image-zoom-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .image-zoom-nav:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .image-zoom-nav.prev { left: 20px; }
+        .image-zoom-nav.next { right: 20px; }
+        .image-zoom-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.6);
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -895,6 +981,15 @@
         </div>
     </div>
     
+    <!-- 图片放大弹窗 -->
+    <div class="image-zoom-overlay" id="imageZoomOverlay" onclick="closeImageZoom()">
+        <button class="image-zoom-close" onclick="closeImageZoom(); event.stopPropagation();">×</button>
+        <button class="image-zoom-nav prev" onclick="prevZoomImage(); event.stopPropagation();">‹</button>
+        <button class="image-zoom-nav next" onclick="nextZoomImage(); event.stopPropagation();">›</button>
+        <img class="image-zoom-content" id="imageZoomContent" src="" alt="" onclick="event.stopPropagation();">
+        <div class="image-zoom-indicator" id="imageZoomIndicator"></div>
+    </div>
+    
     <!-- 导航选择弹窗 -->
     <div class="nav-options-overlay" id="navOptionsOverlay">
         <div class="nav-options-modal">
@@ -910,14 +1005,14 @@
     <script>
         // 店铺数据
         const shopData = {
-            "total": 29,
+            "total": 30,
             "shops": [
                 {
                     "id": "001",
                     "name": "BasilBistro罗勒",
                     "category": ["餐饮美食"],
                     "images": ["店铺图片/BasilBistro罗勒-1.jpg"],
-                    "description": "一店双境，食与酒的温柔叙事。在城市快节奏的缝隙里，这里是既能安心吃一顿扎实正餐，又能松弛小酌的角落。白日里是安静雅致的意式餐厅，夜幕下转身成法式清吧酒馆。",
+                    "description": "<strong>日作意式正餐，夜启法式微醺，一店双境藏尽温柔烟火。</strong><br><br>一店双境，食与酒的温柔叙事在城市快节奏的缝隙里，总有人想找一处既能安心吃一顿扎实正餐，又能松弛小酌的角落——Basil Bistro 罗勒，便因这份心意而生。<br><br>主理人痴迷欧洲街巷里自在烟火的小馆，痴迷意式料理的本真风味，也沉醉法式小酒馆的慵懒浪漫，不愿将\"吃饭\"与\"微醺\"割裂，便打破边界，打造了这座日与夜切换的复合空间。<br><br>白日里，它是安静雅致的意式餐厅，用高标准食材还原地中海的鲜醇；夜幕落下，灯光柔化，它便转身成法式清吧酒馆，让食物的余味与酒香相融，把一日的疲惫轻轻安放。",
                     "address": "坪山大道2011号潮悦荟广场L1-123号",
                     "coordinate": {"lat": 22.675, "lng": 114.284},
                     "mapPosition": {"x": 2667, "y": 3069},
@@ -929,7 +1024,7 @@
                     "name": "六合空间烤吧",
                     "category": ["餐饮美食"],
                     "images": ["店铺图片/六合空间-1.jpg", "店铺图片/六合空间-2.jpg"],
-                    "description": "六合空间烤吧，位于深圳坪山区坪山大道5019号，是坪山本地人气颇高的一站式美食聚会空间。主打东北烧烤+潮汕风味火锅的融合菜系。",
+                    "description": "<strong>来六合空间，撸串、涮锅、畅饮，尽情释放压力，收获一整晚的轻松与欢聚。</strong><br><br>六合空间烤吧 · 坪山必打卡！<br><br>坪山1000㎡双层露营风地标，户外350㎡天幕加持，驻场乐队+璀璨灯光，氛围感直接拉满！这里是年轻人专属的欢乐放松基地，轻松容纳朋友小聚、公司团建与生日派对。<br><br>三大招牌必点，治愈所有味蕾！<br><br>爆汁流油小龙虾：肉质Q弹，金黄饱满，一口上头，是夏夜最爽的快乐！<br><br>每日现串东北烧烤：大油边、羊肉串、碳烤碟鱼头明火现烤，焦香酥脆，肉香四溢。<br><br>鲜活潮汕火锅：果园脆皮鸡锅等招牌汤底浓郁，鲜掉眉毛，暖胃又暖心。<br><br>在这里，美食与氛围双向奔赴！来六合空间，撸串、涮锅、畅饮，尽情释放压力，收获一整晚的轻松与欢聚！",
                     "address": "深圳市坪山区坪山大道5019号",
                     "coordinate": {"lat": 22.698, "lng": 114.235},
                     "mapPosition": {"x": 3267, "y": 2672},
@@ -941,7 +1036,7 @@
                     "name": "鹏鹏虾庄·创新土鸡火锅",
                     "category": ["餐饮美食"],
                     "images": ["店铺图片/鹏鹏虾庄·创新土鸡火锅-1.jpg", "店铺图片/鹏鹏虾庄·创新土鸡火锅-2.jpg"],
-                    "description": "一家属于年轻人的活力小龙虾烧烤小馆，没有复杂排场，只有烟火与真诚。活虾现做，炭火现烤，不玩套路只做实在味道。",
+                    "description": "<strong>撸串嗦虾，把烦恼烤化，把快乐加满。</strong><br><br>一家属于年轻人的活力小龙虾烧烤小馆，没有复杂排场，只有烟火与真诚；活虾现做，炭火现烤，不玩套路只做实在味道。用新鲜食材、干净出品、平价实惠，承包你的夜宵快乐。<br><br>小龙虾配烧烤，青春不打烊，欢迎来撸串嗦虾，把烦恼烤化，把快乐加满。这里是朋友小聚、放松解压的青春角落，好吃不贵，温暖到位。",
                     "address": "坪山区宝山第二工业区宝山产业园4栋106",
                     "coordinate": {"lat": 22.686, "lng": 114.248},
                     "mapPosition": {"x": 2876, "y": 2692},
@@ -953,7 +1048,7 @@
                     "name": "深圳市坪山区原野西餐厅",
                     "category": ["餐饮美食"],
                     "images": ["店铺图片/原野西餐厅-1.jpg"],
-                    "description": "店面及产品设计新颖独特、原创性强，能深度融合坪山本地经济特色，小店运营状态良好，在本社区及附近范围有一定影响力。",
+                    "description": "<strong>一家见证父母爱情的餐厅，同时也是一家承载着坪山几代人青春记忆和味蕾情怀的西餐厅。</strong><br><br>深耕坪山数十载，是一家本土老牌西餐厅，始于1989年，焕新重逢于2022年。作为坪山首家本土西餐厅，始终以暖心服务为底色，以匠心品质为初心。<br><br>秉持「西餐融合本土风味」的独特理念，守经典之本，创风味之新，高颜值精致餐食和特色饮品一应俱全，烟火与浪漫兼具，是治愈日常、打卡约会的理想好去处。",
                     "address": "深圳市坪山区马峦街道坪环社区中昌路6-65",
                     "coordinate": {"lat": 22.643, "lng": 114.268},
                     "mapPosition": {"x": 3511, "y": 3173},
@@ -965,7 +1060,7 @@
                     "name": "福源居",
                     "category": ["娱乐休闲"],
                     "images": ["店铺图片/福源居-1.jpg", "店铺图片/福源居-2.jpg"],
-                    "description": "百年古宅，沉淀着时光的故事，弥漫着历史的韵味。远离城市的宣泄与疲惫，归隐田园的宁静自在。采菊东篱下，悠然见南山。",
+                    "description": "<strong>百年古宅归隐田园，围炉煮茶、精致粤菜，静享悠然时光。</strong><br><br>百年古宅，沉淀着时光的故事，弥漫着历史的韵味，远离城市的宣泄与疲惫的，归隐田园的宁静自在，采菊东篱下，悠然见南山，福缘聚，福源居。（餐饮、棋牌、茶室、KTV、围炉煮茶、烧烤）",
                     "address": "坪山区石井街道金龟半坝村3号",
                     "coordinate": {"lat": 22.694, "lng": 114.224},
                     "mapPosition": {"x": 4889, "y": 3849},
@@ -977,7 +1072,7 @@
                     "name": "火车头live",
                     "category": ["娱乐休闲"],
                     "images": ["店铺图片/火车头live-1.jpg", "店铺图片/火车头live-2.jpg"],
-                    "description": "火车头live·迷笛窝，一家藏在城市里的音乐小酒馆。有酒、有歌、有朋友，更有治愈人心的烟火气息。",
+                    "description": "<strong>有酒有歌有烧烤，音乐相伴，治愈城市夜晚的青春小酒馆。</strong><br><br>火车头live·迷笛窝一家藏在城市里的音乐小酒馆，有酒、有歌、有朋友，更有治愈人心的烟火气。店内主打精酿啤酒、特色鸡尾酒、无酒精特调，专业乐队驻唱、开放麦，不管是朋友小聚、团队团建，还是下班后放松小酌，都能自在尽兴。<br><br>现全新升级，正式引进特色烧烤！现点现烤，炭火鲜香，肉质鲜嫩入味，搭配酒馆酒水，夜宵氛围直接拉满。音乐不停，烧烤滚烫，啤酒冰爽，烟火与歌声相伴，给你不一样的夜生活体验。欢迎到店，喝酒、听歌、撸串，一站式尽兴。",
                     "address": "广东省深圳市坪山区山路1号101",
                     "coordinate": {"lat": 22.691, "lng": 114.208},
                     "mapPosition": {"x": 3096, "y": 2844},
@@ -989,7 +1084,7 @@
                     "name": "又见咖啡工作室",
                     "category": ["咖啡甜品"],
                     "images": ["店铺图片/又见咖啡-1.jpg", "店铺图片/又见咖啡-2.jpg", "店铺图片/又见咖啡-3.jpg"],
-                    "description": "又见咖啡工作室创立于2025年，坐落于坪山赤坳\"天然氧吧\"位置，以\"自然、温暖、慢享\"为核心理念。",
+                    "description": "<strong>鲜花妆点庭院，原木绿植相伴，慢享温暖治愈的咖啡时光。</strong><br><br>又见咖啡工作室创立于2025年，坐落于城市坪山赤坳\"天然氧吧\"位置，以\"自然、温暖、慢享\"为核心理念，致力于为都市人打造一处兼具品质与温度的日常休憩地。<br><br>店内空间设计融合原木肌理与绿植造景，挑高落地窗引入充足自然光，分区设置商务洽谈区、阅读角、开放式共享长桌，户外休闲区与茗香民宿，满足独处、社交、家庭聚会、轻办公等多元场景需求。",
                     "address": "深圳市坪山区马峦街道江岭社区三河村96号",
                     "coordinate": {"lat": 22.692, "lng": 114.227},
                     "mapPosition": {"x": 3947, "y": 3883},
@@ -1001,7 +1096,7 @@
                     "name": "开心爸爸面包店",
                     "category": ["咖啡甜品"],
                     "images": ["店铺图片/开心爸爸面包店-1.jpg", "店铺图片/开心爸爸面包店-2.jpg", "店铺图片/开心爸爸面包店-3.jpg"],
-                    "description": "为了让更多的人吃到健康美味的无添加面包，用心烘焙每一份幸福。",
+                    "description": "<strong>开心爸爸搓包，开心妈妈卖包，开心宝贝吃包</strong><br><br>这里没有花哨的门头招牌，没有科技和狠活儿，只有食物本来的最朴实无华的味道。开心爸爸粗犷的整形手法是我们的特色，面包看似平平无奇，却非常好吃。被大家亲切的称为“坪山特产”。",
                     "address": "深圳市坪山区奥园翡翠东湾一期1栋外围二楼商铺223铺",
                     "coordinate": {"lat": 22.682, "lng": 114.297},
                     "mapPosition": {"x": 4211, "y": 2430},
@@ -1013,7 +1108,7 @@
                     "name": "Somethingfor创新广场店",
                     "category": ["咖啡甜品"],
                     "images": ["店铺图片/Somethingfor创新广场店-1.jpg", "店铺图片/Somethingfor创新广场店-2.jpg", "店铺图片/Somethingfor创新广场店-3.jpg"],
-                    "description": "Something For 是2017年成立于深圳的精品咖啡品牌，定位为\"黑咖啡专业品牌\"，主打澳式经典咖啡和酥皮牛角包。",
+                    "description": "<strong>本土精品咖啡，坪山口碑榜首，黑咖啡专业之选。</strong><br><br>Something For 是 2017 年成立于深圳的精品咖啡品牌，定位为\"黑咖啡专业品牌\"，主打澳式经典咖啡和酥皮牛角包。凭借扎实的产品口碑和有温度的服务，它已成为深圳本土咖啡的代表之一，并逐渐向外扩张。<br><br>SomethingFor创新广场店是坪山地区唯一的门店，门店环境优美，简约大气，常年蝉联\"大众点评\"坪山区咖啡店口味榜第一名。",
                     "address": "坪山区坪山大道2007号创新广场群楼113号",
                     "coordinate": {"lat": 22.629, "lng": 114.254},
                     "mapPosition": {"x": 3092, "y": 2472},
@@ -1025,7 +1120,7 @@
                     "name": "知亦cake＆cafe",
                     "category": ["咖啡甜品"],
                     "images": ["店铺图片/知亦cake＆cafe-1.jpg", "店铺图片/知亦cake＆cafe-2.jpg", "店铺图片/知亦cake＆cafe-3.jpg"],
-                    "description": "本店主营精品咖啡与烘焙蛋糕，店铺风格清新简约，消费群体以青年群体为主，契合当代年轻人休闲社交需求。",
+                    "description": "<strong>一棵桃树四只猫，青年休闲社交的温馨天地。</strong><br><br>本店主营精品咖啡和饮品、下午茶甜品、生日蛋糕定制、生日甜品台、商务茶歇等，店铺风格清新简约，消费群体以青年群体为主，契合当代年轻人休闲社交需求。店主为青年创业者，证照齐全、诚信合规经营，无不良经营记录。<br><br>门店环境舒适，可作为青年休憩交流、日常放松的优质阵地，愿意积极配合团工委工作，主动面向青年提供优惠福利，参与属地青春公益宣传、青年服务相关活动，助力营造浓厚青春消费氛围，特此申请纳入青春小店。",
                     "address": "深圳市坪山区马峦街道坪环社区大万万安东街23号北边101、102",
                     "coordinate": {"lat": 22.628, "lng": 114.236},
                     "mapPosition": {"x": 3086, "y": 3303},
@@ -1037,7 +1132,7 @@
                     "name": "许愿甜点",
                     "category": ["咖啡甜品"],
                     "images": ["店铺图片/许愿甜品-1.jpg", "店铺图片/许愿甜品-2.jpg"],
-                    "description": "许愿甜点作为一家扎根马峦街道的青年创业小店，贴合计划核心定位。团队充满青春活力与创新动能。",
+                    "description": "<strong>一家可以办生日派对的生日蛋糕、甜品、饮品咖啡和适合下午茶的店。</strong><br><br>许愿甜点是一家扎根马峦街道的青年创业小店，致力于为城市生活增添甜蜜与仪式感。这里不仅是品尝美味的地方，更是一个可以举办生日派对的专属空间——无论亲子欢聚还是好友庆祝，都能留下难忘回忆。<br><br>店内主打手作甜品，生日蛋糕定制，同时提供简餐小吃、饮品咖啡、经典糖水，满足从正餐到下午茶的各种需求。推出茶歇与下午茶定制服务，为企业活动、闺蜜聚会或私人派对提供高颜值、好风味的专属甜品台。",
                     "address": "坪山区马峦街道牛盛路4号",
                     "coordinate": {"lat": 22.617, "lng": 114.225},
                     "mapPosition": {"x": 2684, "y": 3275},
@@ -1049,7 +1144,7 @@
                     "name": "墩宝糖水铺",
                     "category": ["咖啡甜品"],
                     "images": ["店铺图片/墩宝糖水铺-1.jpg", "店铺图片/墩宝糖水铺-2.jpg"],
-                    "description": "墩宝糖水铺，新中式装修的暖心糖水铺，为你在忙碌的生活中带来一丝甜蜜。",
+                    "description": "<strong>新中式暖心糖水铺，一口甜润治愈平凡日常。</strong><br><br>墩宝糖水铺，新中式装修的暖心糖水铺。甄选新鲜食材，用料干净安心，雅致舒适的环境，每一碗暖心糖水都是精心设计，视觉味道的双享受。",
                     "address": "深圳市坪山区碧岭街道碧岭社区新榕路127-1",
                     "coordinate": {"lat": 22.625, "lng": 114.264},
                     "mapPosition": {"x": 2227, "y": 3501},
@@ -1061,7 +1156,7 @@
                     "name": "甜满满甜汤",
                     "category": ["咖啡甜品"],
                     "images": ["店铺图片/甜满满甜汤-1.jpg"],
-                    "description": "深圳市甜满满甜汤餐饮有限公司是辖区内极具活力的青年创业典型，由本地青年自主创办，主打健康、创意甜品。",
+                    "description": "<strong>坪山河畔的潮汕甜汤。</strong><br><br>深圳市甜满满甜汤餐饮有限公司是辖区内极具活力的青年创业典型，由本地青年自主创办，主打健康、创意甜品，深受周边居民与年轻群体喜爱。该店铺经营规范、口碑良好，具备较强的发展潜力与示范效应。",
                     "address": "深圳市坪山区碧岭街道沙湖社区碧沙北路26号蔚蓝左岸2栋2单元S110",
                     "coordinate": {"lat": 22.622, "lng": 114.275},
                     "mapPosition": {"x": 2861, "y": 3384},
@@ -1073,7 +1168,7 @@
                     "name": "叁点叁小吃店",
                     "category": ["餐饮美食"],
                     "images": ["店铺图片/叁点叁小吃店-1.jpg"],
-                    "description": "申请\"青春小店\"不仅是为了获得政策扶持，更是为了证明青年一代的创业价值，打造特色餐饮品牌。",
+                    "description": "<strong>粉色系甜品店，提供满满多巴胺。</strong><br><br>申请\"青春小店\"不仅是为了获得政策扶持，更是为了证明青年一代的创业价值。打造特色餐饮品牌，展现新时代青年奋斗风采。",
                     "address": "深圳市坪山区龙田街道老坑社区井水龙新一巷5、6号102",
                     "coordinate": {"lat": 22.663, "lng": 114.206},
                     "mapPosition": {"x": 4036, "y": 1771},
@@ -1085,7 +1180,7 @@
                     "name": "江岭三河（编织咖啡馆）",
                     "category": ["咖啡甜品"],
                     "images": ["店铺图片/江岭三河(编织咖啡馆)-1.jpg", "店铺图片/江岭三河(编织咖啡馆)-2.jpg"],
-                    "description": "一杯咖啡与一段人生的编织。我们的故事，始于故乡，成于双手，融于杯中。",
+                    "description": "<strong>一杯咖啡一份手作，故乡温度与编织心意相融。</strong><br><br>江岭三河（编织+咖啡馆）这里，是一杯咖啡与一段人生的编织。我们的故事，始于故乡，成于双手，融于杯中。<br><br>\"江岭三河\"不是一个被选中的地名，而是我们生命的起点——那个生我、养我的村庄，有蜿蜒的江河，有叠翠的山岭。开这家店，是我们对故乡最深情的回望与扎根。<br><br>\"编织\" 不只是店里的装饰，更是太太手艺与心意的流淌。从灯罩到杯垫，从靠垫到围巾，每一件都出自她手。它们让空间柔软，让来客温暖。这份手作的温度，是我们咖啡馆独一无二的指纹。<br><br>\"咖啡\"是我们共同的日常与仪式。在无数并肩的日子里，是一杯咖啡的时间，让梦想落了地。我们想分享的，不止是风味，更是因咖啡而聚、因分享而暖的社区氛围。<br><br>在这里，我们备好了三样东西：●融入故乡风土的创意咖啡●太太亲手编织的温暖好物●一个像家一样、欢迎你随时来坐坐的客厅江岭三河（编织+咖啡馆）。在一杯咖啡的时间里，重新感受手作的温度、故乡的善意，和人与人的联结。",
                     "address": "深圳市坪山区江岭三河村五巷十号一楼",
                     "coordinate": {"lat": 22.615, "lng": 114.251},
                     "mapPosition": {"x": 3752, "y": 3784},
@@ -1097,7 +1192,7 @@
                     "name": "树下陶",
                     "category": ["娱乐休闲"],
                     "images": ["店铺图片/树下陶-1.jpg", "店铺图片/树下陶-2.jpg"],
-                    "description": "以陶为媒，在泥土与指尖间，定格手作的温柔时光。在这里，每个人都可以创造属于自己的陶器作品。",
+                    "description": "<strong>以陶为媒，在泥土与指尖间，定格手作的温柔时光。</strong><br><br>树下陶，不止是一间贩卖陶瓷的小店，更是藏在深圳烟火里的自然美学栖居地、慢生活治愈手作陶艺空间。在树下，于一瓷一陶间，遇见生活本真的美好。",
                     "address": "深圳市坪山区坪山街道和平社区团结路10号111",
                     "coordinate": {"lat": 22.657, "lng": 114.227},
                     "mapPosition": {"x": 3274, "y": 2957},
@@ -1109,7 +1204,7 @@
                     "name": "夕空间",
                     "category": ["娱乐休闲"],
                     "images": ["店铺图片/夕空间-1.jpg", "店铺图片/夕空间-2.jpg"],
-                    "description": "夕空间，是一家艺术创作商店，专注挖掘金龟特色，制作金龟艺术家文创周边，包括纪念品、木雕、陶艺、绘画等。",
+                    "description": "<strong>环绕山林归于自然，深挖金龟村特色，用木雕、陶艺发掘自然艺术之美。</strong><br><br>夕空间是2022年在深圳成立的艺术家自营空间及实验室，也是坪山首家当代艺术画廊。空间核心在于\"参与\"和\"游戏\"。<br><br>以当代艺术为载体链接国内外潜力艺术家们和机构的集画廊、多元策展、艺术家工作室、艺术商店为一体的艺术空间。空间非展览时，作为工作室供艺术家驻留创作，创作包括木雕、陶艺、绘画。<br><br>夕空间坐落于坪山一座拥有400年历史的客家古村：金龟村里。空间凝聚融合当代艺术和当地文化，环绕山林归于自然，在远离城市喧嚣的静谧环境中，得天独厚的形成了疗愈人心的自然场域。",
                     "address": "深圳市坪山区石井街道金龟社区金地西区3号101",
                     "coordinate": {"lat": 22.629, "lng": 114.29},
                     "mapPosition": {"x": 4351, "y": 2883},
@@ -1121,7 +1216,7 @@
                     "name": "花房柴窑面包坊",
                     "category": ["娱乐休闲"],
                     "images": ["店铺图片/花房柴窑面包坊-1.jpg", "店铺图片/花房柴窑面包坊-2.jpg"],
-                    "description": "深圳花房柴窑面包坊是一家有老旧房屋改造而来的庭院，以荔枝木作为燃料，纯手工制作面包，开设手工体验课程。",
+                    "description": "<strong>老屋改造庭院，荔枝木手工烘焙，可体验的特色面包坊。</strong><br><br>深圳花房柴窑面包坊是一家有老旧房屋改造而来的庭院，以荔枝木作为燃料，纯手工制作面包，开设手工体验课程，挖掘金龟资源，制作金龟特色面包。",
                     "address": "深圳市坪山区石井街道金龟社区金地西区9号",
                     "coordinate": {"lat": 22.623, "lng": 114.229},
                     "mapPosition": {"x": 4558, "y": 3927},
@@ -1133,7 +1228,7 @@
                     "name": "艺海时光·小院",
                     "category": ["娱乐休闲"],
                     "images": ["店铺图片/艺海时光·小院-1.jpg", "店铺图片/艺海时光·小院-2.jpg"],
-                    "description": "这里是艺海——坪山首席\"艺术+自然\"沉浸式文创研学共生体。以流动的沙画为灵魂，融合非遗手作、森林露营、音乐市集。",
+                    "description": "<strong>沙画为魂、非遗为韵，自然露营里的艺术文创研学空间。</strong><br><br>这里是艺海——坪山首席\"艺术+自然\"沉浸式文创研学共生体。以流动的沙画为灵魂，融合非遗手作、森林露营、音乐市集与轻奢社交，打造城市与自然之间的心灵栖息地。以沙为媒，艺启生活指尖扬沙，绘出心中山海；手作匠心，传承非遗温度。<br><br>日间可于自然营地煮茶听风，入夜后在音乐市集邂逅同频灵魂。从艺术创作到社交分享，从亲子研学到星空夜话——这里不只是空间，更是一群人的诗意相聚。",
                     "address": "吉祥四路东部花卉中心（艺海时光·小院）",
                     "coordinate": {"lat": 22.665, "lng": 114.239},
                     "mapPosition": {"x": 4476, "y": 2579},
@@ -1145,7 +1240,7 @@
                     "name": "南风知衣汉服体验",
                     "category": ["娱乐休闲"],
                     "images": [],
-                    "description": "店铺为两个营业执照经营两个不同类目，又互相贯通。业务一：成人舞蹈，业务二：汉服体验馆。",
+                    "description": "<strong>着汉服习舞蹈，以衣载道传承东方美学。</strong><br><br>店铺为两个营业执照经营两个不同类目，又互相贯通。<br><br>业务一：成人舞蹈，已建立自己的社群，后续推广舞动疗愈等相关课程，和艺术社群艺术沙龙等活动。<br><br>业务二：汉服体验馆，推广汉服文化，结合周边客家建筑进行一些拍摄，和舞蹈相结合的业务。",
                     "address": "坪山老街彩虹路3号",
                     "coordinate": {"lat": 22.603, "lng": 114.218},
                     "mapPosition": {"x": 3209, "y": 3145},
@@ -1157,7 +1252,7 @@
                     "name": "荷糖悦品",
                     "category": ["咖啡甜品"],
                     "images": ["店铺图片/荷糖悦品-1.jpg"],
-                    "description": "荷糖悦品保留客家村建筑元素，传承其营造理念，活化利用闲置老屋，让建筑从\"静态保护\"走向\"动态传承\"。",
+                    "description": "<strong>一盏清糖融古韵，半庭雅趣续乡愁。慢品人间烟火色，闲观老屋岁月长。</strong><br><br>荷糖悦品保留客家村建筑元素，传承其营造理念，活化利用闲置老屋，让建筑从\"静态保护\"走向\"动态传承\"，助力客家文脉延续。<br><br>小院中错落生长着龙眼树、蕨类等植物，为空间注入鲜活生机，与周边烟火气十足的居民楼相映成趣。<br><br>以新中式糖水为媒，融合建筑、饮食与休闲空间，实现老屋活化与民生服务共赢，让客家文化在甜润雅致中焕发新生。",
                     "address": "深圳市坪山区石井街道岭脚老村4号",
                     "coordinate": {"lat": 22.651, "lng": 114.274},
                     "mapPosition": {"x": 4090, "y": 2782},
@@ -1169,7 +1264,7 @@
                     "name": "吖咪艺树园",
                     "category": ["娱乐休闲"],
                     "images": ["店铺图片/吖咪艺树园-1.jpg"],
-                    "description": "集艺术庭院、咖啡轻食、活动场地于一体的复合空间。绿植环绕、草坪开阔、文艺安静！",
+                    "description": "<strong>藏在雕塑园的治愈庭院，咖啡轻食+派对团建一站式美学空间。</strong><br><br>集艺术庭院、咖啡轻食、活动场地于一体的复合空间。绿植环绕、草坪开阔、文艺安静！庭院风设计，独有的玻璃屋，自然+艺术氛围，拍照出片！室内+户外座位，可晒太阳、可遮阴！<br><br>提供:咖啡、特调果汁、奶茶蛋糕甜品、手工点心轻食、简餐、融合餐。可以承接：生日派对、宝宝宴、家庭聚会公司团建、小型会议、沙龙、读书会。<br><br>藏在坪山雕塑园里的治愈小院，咖啡甜品、轻食简餐、团建派对一站式搞定。",
                     "address": "深圳市坪山区马峦街道坪山雕塑艺术创艺园工作室1栋",
                     "coordinate": {"lat": 22.654, "lng": 114.298},
                     "mapPosition": {"x": 3280, "y": 3442},
@@ -1181,7 +1276,7 @@
                     "name": "去峦山",
                     "category": ["娱乐休闲"],
                     "images": ["店铺图片/去峦山-1.jpg"],
-                    "description": "碧岭路口马峦山脚下必经路，集露营、烤肉、咖啡、火锅的休闲驿站，是城市逃离的绝佳去处。",
+                    "description": "<strong>马峦山脚下休闲驿站，山野里的惬意小聚。</strong><br><br>碧岭路口马峦山脚下必经路集露营、烤肉、咖啡、火锅的休闲驿站",
                     "address": "坪山区碧岭街道马峦郊野公园观瀑路101号",
                     "coordinate": {"lat": 22.649, "lng": 114.219},
                     "mapPosition": {"x": 2946, "y": 4338},
@@ -1193,7 +1288,7 @@
                     "name": "New tennis新网网球馆",
                     "category": ["娱乐休闲"],
                     "images": ["店铺图片/New tennis新网网球馆-1.jpg"],
-                    "description": "我们不只是一家发球机馆，而是一扇通向网球新的门。尝试用科技降低热爱门槛，用热情打破刻板印象。",
+                    "description": "<strong>科技赋能网球运动，让竞技变成日常可触的青春生活方式。</strong><br><br>我们不只是一家发球机馆，而是一扇通向网球新的门。我们尝试从运动从网球，切入健康的理念，健康的生活方式，鼓励大家动起来，走出去。<br><br>尝试用科技降低热爱门槛，用热情打破刻板印象。让网球便不再只是赛场上的竞技，而是每个人触手可及的运动、社交和生活方式。我们努力让网球回归日常。",
                     "address": "坪山区潮悦荟2楼243号",
                     "coordinate": {"lat": 22.617, "lng": 114.218},
                     "mapPosition": {"x": 2883, "y": 3177},
@@ -1205,7 +1300,7 @@
                     "name": "舒昕瑜伽馆",
                     "category": ["娱乐休闲"],
                     "images": ["店铺图片/舒昕瑜伽馆-1.jpg"],
-                    "description": "舒昕瑜伽馆位于我社区下廖，店主为本地青年创业者，经营规范、口碑良好，是放松身心的好去处。",
+                    "description": "<strong>用十年专业运动疗愈身心，传递健康生活态度。</strong><br><br>舒昕瑜伽馆位于我社区下廖，店主为本地客家青年创业者，经营规范、口碑超棒。<br><br>在坪山坑梓沙田，藏着一处只属于女性的治愈第三空间——舒昕普拉提瑜伽馆。<br><br>这里是深耕行业十年的姐妹花主理，凭着十年瑜伽普拉提教学经验，用心陪伴上千位女性完成身心蜕变，见证每一份自信与美好绽放。没有商业化的浮躁，只用自家房子精心改造，打造出满是宁静与安逸的小天地，褪去城市喧嚣与生活疲惫，是姐妹们下班后专属的放松解压港湾。<br><br>不用迁就忙碌的生活，不用困在琐碎的日常，在这里，伴着舒缓的音乐，在瑜伽普拉提的舒展中疗愈身心、舒缓压力，练出优雅体态；练累了，还有暖心咖啡相伴，静坐小憩、拍照打卡，每一处角落都充满青年时尚感，随手一拍都是氛围感大片，既是身心疗愈所，也是朋友圈出圈的打卡圣地。<br><br>五一劳动节，致敬每一位努力生活的女性，舒昕普拉提瑜伽馆特推出社区专属福利活动，诚邀坑梓沙田周边所有姐妹，来这里赴一场身心治愈之约。",
                     "address": "坪山区坑梓街道沙田社区廖和路36号一二楼",
                     "coordinate": {"lat": 22.686, "lng": 114.295},
                     "mapPosition": {"x": 4403, "y": 1204},
@@ -1217,7 +1312,7 @@
                     "name": "隐归叁舍民宿",
                     "category": ["特色民宿"],
                     "images": ["店铺图片/隐归叁舍民宿-1.jpg", "店铺图片/隐归叁舍民宿-2.jpg"],
-                    "description": "隐归叁舍民宿是金龟首家以咏春为主题的民宿，在改造老旧房屋的基础上，融入山水田园风格和咏春元素。",
+                    "description": "<strong>咏春主题民宿，山水田园间的青春疗愈栖息地。</strong><br><br>隐归叁舍民宿是金龟首家以咏春为主题的民宿。老板是一名00后年轻人，在改造老旧房屋的基础上，将山水田园诗意与经典咏春文化相融，融入康养泡脚、养身茶歇慢生活体验，适配全龄段人群旅居放松，于山野间静享身心疗愈适合全龄段群体。",
                     "address": "深圳市坪山区石井街道金龟社区田作村20号",
                     "coordinate": {"lat": 22.615, "lng": 114.219},
                     "mapPosition": {"x": 5171, "y": 3757},
@@ -1229,7 +1324,7 @@
                     "name": "粤口口腔",
                     "category": ["生活服务"],
                     "images": ["店铺图片/粵口口腔-1.jpg"],
-                    "description": "【粤口口腔·本土连锁品牌】作为坪山地区大型口腔连锁品牌，汇集了由知名国内三甲专家、教授领衔的硕博医疗团队。",
+                    "description": "<strong>三甲专家团队护航，家门口的专业齿科服务。</strong><br><br>作为坪山地区大型口腔连锁品牌，广东省卫健委、南方医科大学南方医院适宜推广项目实施单位，医院汇集了由知名国内三甲专家、教授领衔的硕博医疗团队，开设有牙齿种植、牙齿矫正、美学修复、综合诊疗、口腔护理、儿童齿科等六大齿科诊疗中心。<br><br>更有\"陪伴式矫正\"、\"舒适化无痛种牙技术\"等特色专属项目，让坪山市民足不出户就能享受多样化的口腔医疗及保健服务。",
                     "address": "坪山大道创新广场裙楼2楼（候机楼2F）",
                     "coordinate": {"lat": 22.624, "lng": 114.224},
                     "mapPosition": {"x": 3568, "y": 2392},
@@ -1241,7 +1336,7 @@
                     "name": "未来隽才大椿堂中医诊所",
                     "category": ["生活服务"],
                     "images": ["店铺图片/未来隽才大椿堂中医诊所-1.jpg", "店铺图片/未来隽才大椿堂中医诊所-2.jpg"],
-                    "description": "该店是一群由技术大学药学院学生创办的中医诊疗馆，传承中医智慧，服务社区居民。",
+                    "description": "<strong>由深技大学子创办，用青年力量传承中医智慧。</strong><br><br>大椿堂 | 藏在石湖村的中医小馆<br><br>以望闻问切，察四时之疾；<br><br>用针药灸推，养身心之和。<br><br>把脉、中药、针灸推拿、慢病调理、艾灸拔罐刮痧、古法护佑，慢调安康。",
                     "address": "深圳市坪山区龙田街道竹坑社区石湖村2-1号",
                     "coordinate": {"lat": 22.636, "lng": 114.221},
                     "mapPosition": {"x": 4465, "y": 2264},
@@ -1253,12 +1348,24 @@
                     "name": "云沁盲人推拿中心",
                     "category": ["生活服务"],
                     "images": ["店铺图片/云沁盲人推拿中心-1.jpg", "店铺图片/云沁盲人推拿中心-2.jpg"],
-                    "description": "本店专注盲人推拿理疗，技师均经过专业培训，凭借娴熟手法与精准触感，为您舒缓身心疲惫。",
+                    "description": "<strong>十六年专业手法精准推拿，舒缓劳损疲惫，守护青春健康。</strong><br><br>本店专注盲人推拿理疗，技师均经过专业培训，凭借娴熟手法与精准触感，为您舒缓身心疲惫。<br><br>主打推拿、按摩、经络疏通等项目，针对久坐劳损、肩颈僵硬、腰背酸痛等常见问题，以专业力道深层放松肌肉、缓解不适。",
                     "address": "坪山区六联社区东纵路409号2楼",
                     "coordinate": {"lat": 22.69, "lng": 114.222},
                     "mapPosition": {"x": 2912, "y": 2954},
                     "navUrl": "https://surl.amap.com/1TY0TKOueag",
                     "baiduNavUrl": "https://j.map.baidu.com/ff/B8lM"
+                },
+                {
+                    "id": "030",
+                    "name": "HAKKA 客咖 Cafe&Bar",
+                    "category": ["咖啡甜品"],
+                    "images": ["店铺图片/HAKKA 客咖 Cafe&Bar-1.jpg"],
+                    "description": "<strong>融合客家精神与咖啡文化，以多元特色门店打造兼具文化底蕴与生活美学的复合型客式咖啡空间。</strong><br><br>客咖2022年创立于深圳坪山，是一个以客家文化为灵感的特色咖啡品牌。创始人将客家人\"勤劳、朴实、好客\"的精神与咖啡文化结合，打造出独具一格的\"客式咖啡体验\"。品牌名\"客咖\"既寓意\"客家人的咖啡\"，也暗含\"以咖啡会客\"的待客之道。<br><br>目前，「客咖」在深圳拥有三家特色门店：<br><br>坑梓店：集咖啡、甜品、西餐、酒吧于一体，并融合了\"安晓民宿\"的住宿体验，为客人提供全天候的客式生活空间。<br><br>龙马社店：主打咖啡与甜品，巧妙结合话剧艺术元素，推出多款以戏剧为灵感的特调咖啡，让客人在品味咖啡的同时感受舞台魅力。<br><br>潮悦荟店：专注咖啡与欧包，演绎都市慢生活美学，HAKKA 客咖潮悦荟店位于深圳市坪山区中山大道与坪联路交汇处的潮悦荟商业区核心位置，是一家以精品咖啡与匠心欧包为核心主打的复合型休闲空间。",
+                    "address": "坪山区坑梓街道横龙路12号",
+                    "coordinate": {"lat": 22.692, "lng": 114.301},
+                    "mapPosition": {"x": 4538, "y": 1350},
+                    "navUrl": "https://surl.amap.com/TWYQOa1a9kS",
+                    "baiduNavUrl": "https://j.map.baidu.com/e2/nA0c"
                 }
             ]
         };
@@ -1531,7 +1638,7 @@
             if (currentShop.images.length > 0) {
                 imageSlider.innerHTML = `
                     ${currentShop.images.map((img, idx) => `
-                        <img class="slider-image ${idx === 0 ? 'active' : ''}" src="${img}" alt="${currentShop.name}">
+                        <img class="slider-image ${idx === 0 ? 'active' : ''}" src="${img}" alt="${currentShop.name}" onclick="openImageZoom(${idx})" style="cursor: zoom-in;">
                     `).join('')}
                     ${currentShop.images.length > 1 ? `
                         <button class="slider-arrow prev" onclick="prevImage()">‹</button>
@@ -1557,7 +1664,7 @@
             document.getElementById('modalCategories').innerHTML = currentShop.category.map(c => 
                 `<span class="modal-category">${c}</span>`
             ).join('');
-            document.getElementById('modalDescription').textContent = currentShop.description;
+            document.getElementById('modalDescription').innerHTML = currentShop.description;
             document.getElementById('modalAddress').textContent = currentShop.address;
             
             modalOverlay.classList.add('active');
@@ -1598,6 +1705,47 @@
             document.querySelectorAll('.slider-dot').forEach((dot, idx) => {
                 dot.classList.toggle('active', idx === currentImageIndex);
             });
+        }
+
+        // 打开图片放大弹窗
+        function openImageZoom(idx) {
+            if (!currentShop || currentShop.images.length === 0) return;
+            currentImageIndex = idx || currentImageIndex;
+            const zoomOverlay = document.getElementById('imageZoomOverlay');
+            const zoomContent = document.getElementById('imageZoomContent');
+            const zoomIndicator = document.getElementById('imageZoomIndicator');
+            
+            zoomContent.src = currentShop.images[currentImageIndex];
+            zoomContent.alt = currentShop.name;
+            zoomIndicator.textContent = `${currentImageIndex + 1} / ${currentShop.images.length}`;
+            zoomOverlay.classList.add('active');
+        }
+
+        // 关闭图片放大弹窗
+        function closeImageZoom() {
+            document.getElementById('imageZoomOverlay').classList.remove('active');
+        }
+
+        // 上一张放大图片
+        function prevZoomImage() {
+            if (!currentShop || currentShop.images.length <= 1) return;
+            currentImageIndex = (currentImageIndex - 1 + currentShop.images.length) % currentShop.images.length;
+            updateZoomImage();
+        }
+
+        // 下一张放大图片
+        function nextZoomImage() {
+            if (!currentShop || currentShop.images.length <= 1) return;
+            currentImageIndex = (currentImageIndex + 1) % currentShop.images.length;
+            updateZoomImage();
+        }
+
+        // 更新放大图片
+        function updateZoomImage() {
+            const zoomContent = document.getElementById('imageZoomContent');
+            const zoomIndicator = document.getElementById('imageZoomIndicator');
+            zoomContent.src = currentShop.images[currentImageIndex];
+            zoomIndicator.textContent = `${currentImageIndex + 1} / ${currentShop.images.length}`;
         }
 
         // 显示导航选项
