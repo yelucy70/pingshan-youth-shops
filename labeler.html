@@ -49,66 +49,37 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
         }
         .zoom-btn:hover {
             background: #f0f0f0;
-            transform: scale(1.05);
         }
         .zoom-level {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
             text-align: center;
-            color: white;
-            font-size: 12px;
-            background: rgba(0,0,0,0.5);
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-        .marker {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            background: #ff6b6b;
-            border: 3px solid white;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            cursor: pointer;
-            z-index: 10;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            transition: all 0.2s;
-        }
-        .marker:hover {
-            transform: translate(-50%, -50%) scale(1.2);
-            background: #ff4757;
-        }
-        .marker-number {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         .sidebar {
-            width: 380px;
+            width: 320px;
             background: white;
-            border-left: 1px solid #ddd;
+            border-left: 1px solid #eee;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
         .sidebar-header {
             padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            border-bottom: 1px solid #eee;
         }
         .sidebar-header h2 {
             font-size: 18px;
-            margin-bottom: 8px;
+            color: #1a1a1a;
+            margin-bottom: 4px;
         }
         .sidebar-header p {
-            font-size: 14px;
-            opacity: 0.9;
+            font-size: 13px;
+            color: #666;
         }
         .shop-list {
             flex: 1;
@@ -116,86 +87,125 @@
             padding: 10px;
         }
         .shop-item {
-            padding: 12px 16px;
-            margin-bottom: 8px;
-            background: #f8f9fa;
+            padding: 12px;
             border-radius: 8px;
+            margin-bottom: 8px;
             cursor: pointer;
             transition: all 0.2s;
-            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .shop-item:hover {
-            background: #e9ecef;
+            background: #f5f7fa;
         }
         .shop-item.selected {
-            border-color: #667eea;
-            background: #f0f3ff;
-        }
-        .shop-item.marked {
-            border-left: 4px solid #51cf66;
+            background: #e8f0fe;
+            border: 1px solid #4a90d9;
         }
         .shop-number {
-            display: inline-block;
-            width: 28px;
-            height: 28px;
-            background: #667eea;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 50%;
-            text-align: center;
-            line-height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 12px;
-            font-weight: bold;
-            margin-right: 10px;
-            vertical-align: middle;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .shop-info {
+            flex: 1;
+            min-width: 0;
         }
         .shop-name {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
-            color: #333;
-            vertical-align: middle;
+            color: #1a1a1a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .shop-category {
-            display: inline-block;
-            margin-left: 8px;
-            padding: 2px 8px;
-            background: #e7f5ff;
-            color: #1971c2;
-            border-radius: 12px;
             font-size: 11px;
-            vertical-align: middle;
+            color: #667eea;
+            margin-top: 2px;
         }
         .actions {
             padding: 16px;
-            background: #f8f9fa;
-            border-top: 1px solid #ddd;
-        }
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 10px;
-        }
-        .btn:hover {
-            background: #5a6fd6;
-        }
-        .btn-secondary {
-            background: #868e96;
-        }
-        .btn-secondary:hover {
-            background: #748ffc;
+            border-top: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         .progress {
             text-align: center;
             font-size: 13px;
             color: #666;
-            margin-bottom: 10px;
+            padding: 10px;
+            background: #f5f7fa;
+            border-radius: 8px;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+        .btn-secondary:hover {
+            background: #e8e8e8;
+            box-shadow: none;
+        }
+        .marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #ff0080 0%, #ff4081 100%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
+            box-shadow: 0 0 10px rgba(255, 0, 128, 0.6);
+        }
+        .marker:hover {
+            transform: translate(-50%, -50%) scale(1.3);
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.8);
+        }
+        .marker.selected {
+            transform: translate(-50%, -50%) scale(1.3);
+            box-shadow: 0 0 15px rgba(255, 0, 128, 1);
+            animation: pulse 1s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 0, 128, 1); }
+            50% { box-shadow: 0 0 25px rgba(255, 0, 128, 0.6); }
+        }
+        .marker-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
         .tooltip {
             position: absolute;
@@ -216,13 +226,13 @@
 <body>
     <div class="map-container">
         <div class="zoom-controls">
-            <button class="zoom-btn" onclick="zoomIn()">➕</button>
-            <button class="zoom-btn" onclick="zoomOut()">➖</button>
+            <button class="zoom-btn" onclick="zoomIn()">+</button>
+            <button class="zoom-btn" onclick="zoomOut()">−</button>
             <button class="zoom-btn" onclick="resetZoom()">🔄</button>
             <div class="zoom-level" id="zoomLevel">100%</div>
         </div>
         <div class="map-wrapper" id="mapWrapper">
-            <img id="mapImage" src="坪山区青春小店消费图鉴.jpg" alt="坪山区青春小店消费图鉴">
+            <img id="mapImage" src="坪山区青春小店消费图鉴地图.jpg" alt="坪山区青春小店消费图鉴">
         </div>
     </div>
     
@@ -235,500 +245,223 @@
         <div class="shop-list" id="shopList"></div>
         
         <div class="actions">
-            <div class="progress" id="progress">已标注: 0 / 29</div>
+            <div class="progress" id="progress">已标注 0 / 30</div>
             <button class="btn" onclick="saveData()">💾 保存坐标数据</button>
             <button class="btn btn-secondary" onclick="clearMarkers()">🔄 清除所有标记</button>
         </div>
     </div>
 
     <script>
-        // 缩放相关变量
         let currentScale = 1;
         const minScale = 0.5;
         const maxScale = 3;
+        let selectedShopId = null;
         
-        // 店铺数据
         const shopData = {
-            "total": 29,
+            "total": 30,
             "shops": [
-                {
-                    "id": "001",
-                    "name": "BasilBistro罗勒",
-                    "category": ["餐饮美食"],
-                    "images": ["/店铺图片/BasilBistro罗勒-1.jpg"],
-                    "description": "一店双境，食与酒的温柔叙事...",
-                    "address": "坪山大道2011号潮悦荟广场L1-123号",
-                    "coordinate": {"lat": 22.675, "lng": 114.284},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "002",
-                    "name": "六合空间烤吧",
-                    "category": ["餐饮美食"],
-                    "images": ["/店铺图片/六合空间-1.jpg", "/店铺图片/六合空间-2.jpg"],
-                    "description": "六合空间烤吧，位于深圳坪山区坪山大道5019号...",
-                    "address": "深圳市坪山区坪山大道5019号",
-                    "coordinate": {"lat": 22.698, "lng": 114.235},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "003",
-                    "name": "鹏鹏虾庄·创新土鸡火锅",
-                    "category": ["餐饮美食"],
-                    "images": ["/店铺图片/鹏鹏虾庄·创新土鸡火锅-1.jpg", "/店铺图片/鹏鹏虾庄·创新土鸡火锅-2.jpg"],
-                    "description": "一家属于年轻人的活力小龙虾烧烤小馆...",
-                    "address": "坪山区宝山第二工业区宝山产业园4栋106",
-                    "coordinate": {"lat": 22.686, "lng": 114.248},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "004",
-                    "name": "深圳市坪山区原野西餐厅",
-                    "category": ["餐饮美食"],
-                    "images": ["/店铺图片/原野西餐厅-1.jpg"],
-                    "description": "店面及产品设计新颖独特、原创性强...",
-                    "address": "深圳市坪山区马峦街道坪环社区中昌路6-65",
-                    "coordinate": {"lat": 22.643, "lng": 114.268},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "005",
-                    "name": "深圳福源居商贸服务有限公司",
-                    "category": ["娱乐休闲"],
-                    "images": ["/店铺图片/福源居-1.jpg", "/店铺图片/福源居-2.jpg"],
-                    "description": "百年古宅，沉淀着时光的故事...",
-                    "address": "坪山区石井街道金龟半坝村3号",
-                    "coordinate": {"lat": 22.694, "lng": 114.224},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "006",
-                    "name": "火车头live",
-                    "category": ["娱乐休闲"],
-                    "images": ["/店铺图片/火车头live-1.jpg", "/店铺图片/火车头live-2.jpg"],
-                    "description": "火车头live·迷笛窝一家藏在城市里的音乐小酒馆...",
-                    "address": "广东省深圳市坪山区山路1号101",
-                    "coordinate": {"lat": 22.691, "lng": 114.208},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "007",
-                    "name": "深圳市坪山区又见咖啡工作室",
-                    "category": ["咖啡甜品"],
-                    "images": ["/店铺图片/又见咖啡-1.jpg", "/店铺图片/又见咖啡-2.jpg", "/店铺图片/又见咖啡-3.jpg"],
-                    "description": "又见咖啡工作室创立于2025年...",
-                    "address": "深圳市坪山区马峦街道江岭社区三河村96号",
-                    "coordinate": {"lat": 22.692, "lng": 114.227},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "008",
-                    "name": "深圳市坪山区开心爸爸面包店",
-                    "category": ["咖啡甜品"],
-                    "images": ["/店铺图片/开心爸爸面包店-1.jpg", "/店铺图片/开心爸爸面包店-2.jpg", "/店铺图片/开心爸爸面包店-3.jpg"],
-                    "description": "为了让更多的人吃到健康美味的无添加面包。",
-                    "address": "深圳市坪山区奥园翡翠东湾一期1栋外围二楼商铺223铺",
-                    "coordinate": {"lat": 22.682, "lng": 114.297},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "009",
-                    "name": "Somethingfor创新广场店",
-                    "category": ["咖啡甜品"],
-                    "images": ["/店铺图片/Somethingfor创新广场店-1.jpg", "/店铺图片/Somethingfor创新广场店-2.jpg", "/店铺图片/Somethingfor创新广场店-3.jpg"],
-                    "description": "Something For 是 2017 年成立于深圳的精品咖啡品牌...",
-                    "address": "坪山区坪山大道2007号创新广场群楼113号",
-                    "coordinate": {"lat": 22.629, "lng": 114.254},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "010",
-                    "name": "知亦cake＆cafe",
-                    "category": ["咖啡甜品"],
-                    "images": ["/店铺图片/知亦cake＆cafe-1.jpg", "/店铺图片/知亦cake＆cafe-2.jpg", "/店铺图片/知亦cake＆cafe-3.jpg"],
-                    "description": "本店主营精品咖啡与烘焙蛋糕...",
-                    "address": "深圳市坪山区马峦街道坪环社区大万万安东街23号北边101、102",
-                    "coordinate": {"lat": 22.628, "lng": 114.236},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "011",
-                    "name": "深圳市许愿甜点餐饮有限公司",
-                    "category": ["咖啡甜品"],
-                    "images": [],
-                    "description": "许愿甜点作为一家扎根马峦街道的青年创业小店...",
-                    "address": "坪山区马峦街道牛盛路4号",
-                    "coordinate": {"lat": 22.617, "lng": 114.225},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "012",
-                    "name": "深圳市坪山区碧岭街道墩宝糖水铺",
-                    "category": ["咖啡甜品"],
-                    "images": ["/店铺图片/墩宝糖水铺-1.jpg", "/店铺图片/墩宝糖水铺-2.jpg"],
-                    "description": "墩宝糖水铺，新中式装修的暖心糖水铺。",
-                    "address": "深圳市坪山区碧岭街道碧岭社区新榕路127-1",
-                    "coordinate": {"lat": 22.625, "lng": 114.264},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "013",
-                    "name": "深圳市甜满满甜汤餐饮有限公司",
-                    "category": ["咖啡甜品"],
-                    "images": ["/店铺图片/甜满满甜汤-1.jpg"],
-                    "description": "深圳市甜满满甜汤餐饮有限公司是辖区内极具活力的青年创业典型...",
-                    "address": "深圳市坪山区碧岭街道沙湖社区碧沙北路26号蔚蓝左岸2栋2单元S110",
-                    "coordinate": {"lat": 22.622, "lng": 114.275},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "014",
-                    "name": "深圳市坪山区叁点叁柠檬茶饮品小吃店",
-                    "category": ["餐饮美食"],
-                    "images": [],
-                    "description": "申请\"青春小店\"不仅是为了获得政策扶持...",
-                    "address": "深圳市坪山区龙田街道老坑社区井水龙新一巷5、6号102",
-                    "coordinate": {"lat": 22.663, "lng": 114.206},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "015",
-                    "name": "江岭三河（编织咖啡馆）",
-                    "category": ["咖啡甜品"],
-                    "images": [],
-                    "description": "江岭三河（编织+咖啡馆）这里，是一杯咖啡与一段人生的编织...",
-                    "address": "深圳市坪山区江岭三河村五巷十号一楼",
-                    "coordinate": {"lat": 22.615, "lng": 114.251},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "016",
-                    "name": "树下陶",
-                    "category": ["娱乐休闲"],
-                    "images": ["/店铺图片/树下陶-1.jpg", "/店铺图片/树下陶-2.jpg"],
-                    "description": "以陶为媒，在泥土与指尖间...",
-                    "address": "深圳市坪山区坪山街道和平社区团结路10号111",
-                    "coordinate": {"lat": 22.657, "lng": 114.227},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "017",
-                    "name": "深圳市夕枭文化艺术有限公司（夕空间）",
-                    "category": ["娱乐休闲"],
-                    "images": ["/店铺图片/夕空间-1.jpg", "/店铺图片/夕空间-2.jpg"],
-                    "description": "夕空间，是一家艺术创作商店...",
-                    "address": "深圳市坪山区石井街道金龟社区金地西区3号101",
-                    "coordinate": {"lat": 22.629, "lng": 114.290},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "018",
-                    "name": "深圳花房柴窑面包坊",
-                    "category": ["娱乐休闲"],
-                    "images": ["/店铺图片/花房柴窑面包坊-1.jpg", "/店铺图片/花房柴窑面包坊-2.jpg"],
-                    "description": "深圳花房柴窑面包坊是一家有老旧房屋改造而来的庭院...",
-                    "address": "深圳市坪山区石井街道金龟社区金地西区9号",
-                    "coordinate": {"lat": 22.623, "lng": 114.229},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "019",
-                    "name": "艺海时光·小院",
-                    "category": ["娱乐休闲"],
-                    "images": [],
-                    "description": "这里是艺海——坪山首席\"艺术+自然\"沉浸式文创研学共生体...",
-                    "address": "吉祥四路东部花卉中心（艺海时光·小院）",
-                    "coordinate": {"lat": 22.665, "lng": 114.239},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "020",
-                    "name": "南风知衣汉服体验",
-                    "category": ["娱乐休闲"],
-                    "images": [],
-                    "description": "店铺为两个营业执照经营两个不同类目...",
-                    "address": "坪山老街彩虹路3号",
-                    "coordinate": {"lat": 22.603, "lng": 114.218},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "021",
-                    "name": "荷糖悦品",
-                    "category": ["咖啡甜品"],
-                    "images": ["/店铺图片/荷糖悦品-1.jpg"],
-                    "description": "荷糖悦品保留客家村建筑元素...",
-                    "address": "深圳市坪山区石井街道岭脚老村4号",
-                    "coordinate": {"lat": 22.651, "lng": 114.274},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "022",
-                    "name": "吖咪艺树园",
-                    "category": ["娱乐休闲"],
-                    "images": ["/店铺图片/吖咪艺树园-1.jpg"],
-                    "description": "集艺术庭院、咖啡轻食、活动场地于一体的复合空间...",
-                    "address": "深圳市坪山区马峦街道坪山雕塑艺术创艺园工作室1栋",
-                    "coordinate": {"lat": 22.654, "lng": 114.298},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "023",
-                    "name": "去峦山",
-                    "category": ["娱乐休闲"],
-                    "images": ["/店铺图片/去峦山-1.jpg"],
-                    "description": "碧岭路口马峦山脚下必经路集露营、烤肉、咖啡、火锅的休闲驿站",
-                    "address": "坪山区碧岭街道马峦郊野公园观瀑路101号",
-                    "coordinate": {"lat": 22.649, "lng": 114.219},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "024",
-                    "name": "New tennis新网网球馆",
-                    "category": ["娱乐休闲"],
-                    "images": ["/店铺图片/New tennis新网网球馆-1.jpg"],
-                    "description": "我们不只是一家发球机馆，而是一扇通向网球新的门...",
-                    "address": "坪山区潮悦荟2楼243号",
-                    "coordinate": {"lat": 22.617, "lng": 114.218},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "025",
-                    "name": "舒昕瑜伽馆",
-                    "category": ["娱乐休闲"],
-                    "images": ["/店铺图片/舒昕瑜伽馆-1.jpg"],
-                    "description": "舒昕瑜伽馆位于我社区下廖，店主为本地青年创业者...",
-                    "address": "坪山区坑梓街道沙田社区廖和路36号一二楼",
-                    "coordinate": {"lat": 22.686, "lng": 114.295},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "026",
-                    "name": "深圳坪山区金龟村隐归叁舍民宿中心",
-                    "category": ["特色民宿"],
-                    "images": ["/店铺图片/隐归叁舍民宿-1.jpg", "/店铺图片/隐归叁舍民宿-2.jpg"],
-                    "description": "隐归叁舍民宿是金龟首家以咏春为主题的民宿...",
-                    "address": "深圳市坪山区石井街道金龟社区田作村20号",
-                    "coordinate": {"lat": 22.615, "lng": 114.219},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "027",
-                    "name": "粤口口腔",
-                    "category": ["生活服务"],
-                    "images": [],
-                    "description": "【粤口口腔·本土连锁品牌】作为坪山地区大型口腔连锁品牌...",
-                    "address": "坪山大道创新广场裙楼2楼（候机楼2F）",
-                    "coordinate": {"lat": 22.624, "lng": 114.224},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "028",
-                    "name": "深圳未来隽才大椿堂中医诊所",
-                    "category": ["生活服务"],
-                    "images": ["/店铺图片/未来隽才大椿堂中医诊所-1.jpg", "/店铺图片/未来隽才大椿堂中医诊所-2.jpg"],
-                    "description": "该店是一群由技术大学药学院学生创办的中医诊疗馆。",
-                    "address": "深圳市坪山区龙田街道竹坑社区石湖村2-1号",
-                    "coordinate": {"lat": 22.636, "lng": 114.221},
-                    "mapPosition": {"x": 0, "y": 0}
-                },
-                {
-                    "id": "029",
-                    "name": "云沁盲人推拿中心",
-                    "category": ["生活服务"],
-                    "images": ["/店铺图片/云沁盲人推拿中心-1.jpg", "/店铺图片/云沁盲人推拿中心-2.jpg"],
-                    "description": "本店专注盲人推拿理疗，技师均经过专业培训...",
-                    "address": "坪山区六联社区东纵路409号2楼",
-                    "coordinate": {"lat": 22.690, "lng": 114.222},
-                    "mapPosition": {"x": 0, "y": 0}
-                }
+                {"id": "001", "name": "BasilBistro罗勒", "category": ["餐饮美食"], "mapPosition": {"x": 2667, "y": 3069}},
+                {"id": "002", "name": "六合空间烤吧", "category": ["餐饮美食"], "mapPosition": {"x": 3267, "y": 2672}},
+                {"id": "003", "name": "鹏鹏虾庄·创新土鸡火锅", "category": ["餐饮美食"], "mapPosition": {"x": 2876, "y": 2692}},
+                {"id": "004", "name": "深圳市坪山区原野西餐厅", "category": ["餐饮美食"], "mapPosition": {"x": 3511, "y": 3173}},
+                {"id": "005", "name": "福源居", "category": ["娱乐休闲"], "mapPosition": {"x": 4889, "y": 3849}},
+                {"id": "006", "name": "火车头live", "category": ["娱乐休闲"], "mapPosition": {"x": 3096, "y": 2844}},
+                {"id": "007", "name": "又见咖啡工作室", "category": ["咖啡甜品"], "mapPosition": {"x": 3947, "y": 3883}},
+                {"id": "008", "name": "开心爸爸面包店", "category": ["咖啡甜品"], "mapPosition": {"x": 4211, "y": 2430}},
+                {"id": "009", "name": "Somethingfor创新广场店", "category": ["咖啡甜品"], "mapPosition": {"x": 3092, "y": 2472}},
+                {"id": "010", "name": "知亦cake＆cafe", "category": ["咖啡甜品"], "mapPosition": {"x": 3086, "y": 3303}},
+                {"id": "011", "name": "许愿甜点", "category": ["咖啡甜品"], "mapPosition": {"x": 2684, "y": 3275}},
+                {"id": "012", "name": "墩宝糖水铺", "category": ["咖啡甜品"], "mapPosition": {"x": 2227, "y": 3501}},
+                {"id": "013", "name": "甜满满甜汤", "category": ["咖啡甜品"], "mapPosition": {"x": 2861, "y": 3384}},
+                {"id": "014", "name": "叁点叁小吃店", "category": ["餐饮美食"], "mapPosition": {"x": 4036, "y": 1771}},
+                {"id": "015", "name": "江岭三河（编织咖啡馆）", "category": ["咖啡甜品"], "mapPosition": {"x": 3752, "y": 3784}},
+                {"id": "016", "name": "树下陶", "category": ["娱乐休闲"], "mapPosition": {"x": 3274, "y": 2957}},
+                {"id": "017", "name": "夕空间", "category": ["娱乐休闲"], "mapPosition": {"x": 4351, "y": 2883}},
+                {"id": "018", "name": "花房柴窑面包坊", "category": ["娱乐休闲"], "mapPosition": {"x": 4558, "y": 3927}},
+                {"id": "019", "name": "艺海时光·小院", "category": ["娱乐休闲"], "mapPosition": {"x": 4476, "y": 2579}},
+                {"id": "020", "name": "南风知衣汉服体验", "category": ["娱乐休闲"], "mapPosition": {"x": 3209, "y": 3145}},
+                {"id": "021", "name": "荷糖悦品", "category": ["咖啡甜品"], "mapPosition": {"x": 4090, "y": 2782}},
+                {"id": "022", "name": "吖咪艺树园", "category": ["娱乐休闲"], "mapPosition": {"x": 3280, "y": 3442}},
+                {"id": "023", "name": "去峦山", "category": ["娱乐休闲"], "mapPosition": {"x": 2946, "y": 4338}},
+                {"id": "024", "name": "New tennis新网网球馆", "category": ["娱乐休闲"], "mapPosition": {"x": 2883, "y": 3177}},
+                {"id": "025", "name": "舒昕瑜伽馆", "category": ["娱乐休闲"], "mapPosition": {"x": 4403, "y": 1204}},
+                {"id": "026", "name": "隐归叁舍民宿", "category": ["特色民宿"], "mapPosition": {"x": 5171, "y": 3757}},
+                {"id": "027", "name": "粤口口腔", "category": ["生活服务"], "mapPosition": {"x": 3568, "y": 2392}},
+                {"id": "028", "name": "未来隽才大椿堂中医诊所", "category": ["生活服务"], "mapPosition": {"x": 4465, "y": 2264}},
+                {"id": "029", "name": "云沁盲人推拿中心", "category": ["生活服务"], "mapPosition": {"x": 2912, "y": 2954}},
+                {"id": "030", "name": "HAKKA 客咖 Cafe&Bar", "category": ["咖啡甜品"], "mapPosition": {"x": 4538, "y": 1350}}
             ]
         };
 
-        let shops = shopData.shops;
-        let selectedShopIndex = -1;
-        let markers = [];
-        let tooltip = null;
-        
-        // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
+        function init() {
             renderShopList();
-            loadExistingMarkers();
-            setTimeout(() => selectNextUnmarked(), 500);
-            
-            // 添加鼠标滚轮缩放
-            document.querySelector('.map-container').addEventListener('wheel', function(e) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                setScale(currentScale + delta);
-            });
-        });
-        
-        // 设置缩放
-        function setScale(scale) {
-            currentScale = Math.max(minScale, Math.min(maxScale, scale));
-            document.getElementById('mapWrapper').style.transform = `scale(${currentScale})`;
-            document.getElementById('zoomLevel').textContent = Math.round(currentScale * 100) + '%';
-            
-            // 更新所有标记的大小
-            markers.forEach((marker, index) => {
-                marker.style.transform = `translate(-50%, -50%) scale(${1/currentScale})`;
-            });
+            renderMarkers();
+            document.getElementById('mapImage').addEventListener('click', handleMapClick);
         }
-        
-        // 放大
-        function zoomIn() {
-            setScale(currentScale + 0.25);
-        }
-        
-        // 缩小
-        function zoomOut() {
-            setScale(currentScale - 0.25);
-        }
-        
-        // 重置缩放
-        function resetZoom() {
-            setScale(1);
-        }
-        
-        // 渲染店铺列表
+
         function renderShopList() {
             const list = document.getElementById('shopList');
-            list.innerHTML = shops.map((shop, index) => {
-                const marked = shop.mapPosition && shop.mapPosition.x && shop.mapPosition.x > 0;
-                return `
-                    <div class="shop-item ${marked ? 'marked' : ''}" id="shop-${index}" onclick="selectShop(${index})">
-                        <span class="shop-number">${index + 1}</span>
-                        <span class="shop-name">${shop.name}</span>
-                        <span class="shop-category">${shop.category[0]}</span>
+            list.innerHTML = shopData.shops.map((shop, idx) => `
+                <div class="shop-item" data-id="${shop.id}" onclick="selectShop('${shop.id}')">
+                    <div class="shop-number">${idx + 1}</div>
+                    <div class="shop-info">
+                        <div class="shop-name">${shop.name}</div>
+                        <div class="shop-category">${shop.category[0]}</div>
                     </div>
-                `;
-            }).join('');
+                </div>
+            `).join('');
             updateProgress();
         }
-        
-        // 选择店铺
-        function selectShop(index) {
-            document.querySelectorAll('.shop-item').forEach(item => item.classList.remove('selected'));
-            document.getElementById(`shop-${index}`).classList.add('selected');
-            selectedShopIndex = index;
-        }
-        
-        // 点击地图标注
-        document.getElementById('mapImage').addEventListener('click', function(e) {
-            if (selectedShopIndex === -1) {
-                alert('请先在右侧列表选择要标注的店铺！');
-                return;
-            }
+
+        function selectShop(shopId) {
+            selectedShopId = shopId;
             
-            const rect = e.target.getBoundingClientRect();
-            const x = (e.clientX - rect.left) / currentScale;
-            const y = (e.clientY - rect.top) / currentScale;
-            
-            // 保存坐标
-            shops[selectedShopIndex].mapPosition = { x: Math.round(x), y: Math.round(y) };
-            
-            // 添加标记
-            addMarker(selectedShopIndex, x, y);
-            
-            // 更新列表
-            renderShopList();
-            
-            // 自动选择下一个未标注的店铺
-            selectNextUnmarked();
-        });
-        
-        // 添加标记点
-        function addMarker(index, x, y) {
-            // 移除旧标记
-            const oldMarker = document.getElementById(`marker-${index}`);
-            if (oldMarker) oldMarker.remove();
-            
-            const marker = document.createElement('div');
-            marker.className = 'marker';
-            marker.id = `marker-${index}`;
-            marker.style.left = x + 'px';
-            marker.style.top = y + 'px';
-            marker.style.transform = `translate(-50%, -50%) scale(${1/currentScale})`;
-            marker.innerHTML = `<span class="marker-number">${index + 1}</span>`;
-            
-            marker.addEventListener('mouseenter', (e) => showTooltip(e, shops[index]));
-            marker.addEventListener('mouseleave', hideTooltip);
-            marker.addEventListener('click', (e) => {
-                e.stopPropagation();
-                selectShop(index);
+            document.querySelectorAll('.shop-item').forEach(item => {
+                item.classList.toggle('selected', item.dataset.id === shopId);
             });
             
-            document.getElementById('mapWrapper').appendChild(marker);
-            markers.push(marker);
+            document.querySelectorAll('.marker').forEach(m => {
+                m.classList.toggle('selected', m.dataset.id === shopId);
+            });
+            
+            const shop = shopData.shops.find(s => s.id === shopId);
+            if (shop && shop.mapPosition.x > 0) {
+                const wrapper = document.getElementById('mapWrapper');
+                const x = shop.mapPosition.x * currentScale - window.innerWidth / 3;
+                const y = shop.mapPosition.y * currentScale - window.innerHeight / 2;
+                wrapper.scrollTo({ left: x, top: y, behavior: 'smooth' });
+            }
         }
-        
-        // 加载已有的标记
-        function loadExistingMarkers() {
-            shops.forEach((shop, index) => {
-                if (shop.mapPosition && shop.mapPosition.x && shop.mapPosition.x > 0) {
-                    addMarker(index, shop.mapPosition.x, shop.mapPosition.y);
+
+        function renderMarkers() {
+            const wrapper = document.getElementById('mapWrapper');
+            const existingMarkers = wrapper.querySelectorAll('.marker');
+            existingMarkers.forEach(m => m.remove());
+            
+            shopData.shops.forEach((shop, idx) => {
+                if (shop.mapPosition.x > 0) {
+                    const marker = document.createElement('div');
+                    marker.className = 'marker';
+                    marker.dataset.id = shop.id;
+                    marker.style.left = (shop.mapPosition.x * currentScale) + 'px';
+                    marker.style.top = (shop.mapPosition.y * currentScale) + 'px';
+                    marker.innerHTML = `<div class="marker-number">${idx + 1}</div>`;
+                    marker.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        selectShop(shop.id);
+                    });
+                    marker.addEventListener('mouseenter', () => {
+                        showTooltip(marker, shop.name);
+                    });
+                    marker.addEventListener('mouseleave', hideTooltip);
+                    wrapper.appendChild(marker);
                 }
             });
         }
-        
-        // 显示提示
-        function showTooltip(e, shop) {
+
+        let tooltip = null;
+        function showTooltip(element, text) {
+            hideTooltip();
             tooltip = document.createElement('div');
             tooltip.className = 'tooltip';
-            tooltip.textContent = shop.name;
-            tooltip.style.left = (e.clientX + 10) + 'px';
-            tooltip.style.top = (e.clientY - 30) + 'px';
+            tooltip.textContent = text;
             document.body.appendChild(tooltip);
+            
+            const rect = element.getBoundingClientRect();
+            tooltip.style.left = (rect.left - tooltip.offsetWidth / 2 + rect.width / 2) + 'px';
+            tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
         }
-        
+
         function hideTooltip() {
             if (tooltip) {
                 tooltip.remove();
                 tooltip = null;
             }
         }
-        
-        // 选择下一个未标注的店铺
-        function selectNextUnmarked() {
-            for (let i = 0; i < shops.length; i++) {
-                if (!shops[i].mapPosition || !shops[i].mapPosition.x || shops[i].mapPosition.x === 0) {
-                    selectShop(i);
-                    return;
-                }
+
+        function handleMapClick(e) {
+            if (!selectedShopId) {
+                alert('请先在右侧列表中选择一个店铺');
+                return;
             }
-            selectedShopIndex = -1;
+            
+            const rect = document.getElementById('mapImage').getBoundingClientRect();
+            const x = (e.clientX - rect.left) / currentScale;
+            const y = (e.clientY - rect.top) / currentScale;
+            
+            const shop = shopData.shops.find(s => s.id === selectedShopId);
+            if (shop) {
+                shop.mapPosition.x = Math.round(x);
+                shop.mapPosition.y = Math.round(y);
+                renderMarkers();
+                updateProgress();
+                alert(`已标注: ${shop.name}\n坐标: (${shop.mapPosition.x}, ${shop.mapPosition.y})`);
+            }
+        }
+
+        function zoomIn() {
+            if (currentScale < maxScale) {
+                currentScale += 0.1;
+                updateScale();
+            }
+        }
+
+        function zoomOut() {
+            if (currentScale > minScale) {
+                currentScale -= 0.1;
+                updateScale();
+            }
+        }
+
+        function resetZoom() {
+            currentScale = 1;
+            updateScale();
+        }
+
+        function updateScale() {
+            const wrapper = document.getElementById('mapWrapper');
+            wrapper.style.transform = `scale(${currentScale})`;
+            document.getElementById('zoomLevel').textContent = Math.round(currentScale * 100) + '%';
+            renderMarkers();
+        }
+
+        function updateProgress() {
+            const count = shopData.shops.filter(s => s.mapPosition.x > 0).length;
+            document.getElementById('progress').textContent = `已标注 ${count} / ${shopData.total}`;
+        }
+
+        function clearMarkers() {
+            shopData.shops.forEach(shop => {
+                shop.mapPosition.x = 0;
+                shop.mapPosition.y = 0;
+            });
+            renderMarkers();
+            updateProgress();
+            selectedShopId = null;
             document.querySelectorAll('.shop-item').forEach(item => item.classList.remove('selected'));
         }
-        
-        // 更新进度
-        function updateProgress() {
-            const marked = shops.filter(s => s.mapPosition && s.mapPosition.x && s.mapPosition.x > 0).length;
-            document.getElementById('progress').textContent = `已标注: ${marked} / ${shops.length}`;
-        }
-        
-        // 保存数据
+
         function saveData() {
-            const data = { total: shops.length, shops: shops };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const output = shopData.shops.map(shop => ({
+                id: shop.id,
+                name: shop.name,
+                mapPosition: shop.mapPosition
+            }));
+            
+            const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'shops.json';
+            a.download = 'shop_coordinates.json';
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            alert('数据已保存！请将下载的 shops.json 文件替换原文件。');
+            
+            alert('坐标数据已保存！\n请将生成的JSON文件内容更新到index.html中');
         }
-        
-        // 清除所有标记
-        function clearMarkers() {
-            if (!confirm('确定要清除所有标记吗？')) return;
-            shops.forEach(shop => {
-                shop.mapPosition = { x: 0, y: 0 };
-            });
-            markers.forEach(m => m.remove());
-            markers = [];
-            renderShopList();
-        }
+
+        init();
     </script>
 </body>
 </html>
