@@ -518,8 +518,10 @@
         }
         .mobile-shop-list {
             flex: 1;
-            overflow-y: auto;
+            overflow-y: scroll;
             padding: 10px;
+            max-height: calc(100vh - 450px);
+            -webkit-overflow-scrolling: touch;
         }
         .mobile-layout .shop-item {
             padding: 14px;
@@ -1097,76 +1099,78 @@
             const mapImg = document.getElementById('mobileMapImage');
             if (!mapImg) return;
             
-            let currentScale = 1;
-            let lastTouchDistance = 0;
-            let startX = 0;
-            let startY = 0;
-            let translateX = 0;
-            let translateY = 0;
-            let isDragging = false;
-            let isZooming = false;
+            let scale = 1;
+            let offsetX = 0;
+            let offsetY = 0;
+            let lastTouchDist = 0;
+            let lastTouchMidX = 0;
+            let lastTouchMidY = 0;
+            let lastTouchX = 0;
+            let lastTouchY = 0;
+            let isTwoFinger = false;
             
             mobileMapWrapper.addEventListener('touchstart', function(e) {
-                if (e.touches.length === 1) {
-                    isDragging = true;
-                    isZooming = false;
-                    startX = e.touches[0].clientX - translateX;
-                    startY = e.touches[0].clientY - translateY;
-                } else if (e.touches.length === 2) {
-                    isZooming = true;
-                    isDragging = false;
-                    lastTouchDistance = getDistance(e.touches[0], e.touches[1]);
+                if (e.touches.length === 2) {
+                    isTwoFinger = true;
+                    lastTouchDist = getDistance(e.touches[0], e.touches[1]);
+                    lastTouchMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                    lastTouchMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                } else if (e.touches.length === 1) {
+                    isTwoFinger = false;
+                    lastTouchX = e.touches[0].clientX - offsetX;
+                    lastTouchY = e.touches[0].clientY - offsetY;
                 }
             });
             
             mobileMapWrapper.addEventListener('touchmove', function(e) {
-                if (isDragging && e.touches.length === 1) {
+                if (e.touches.length === 2) {
                     e.preventDefault();
-                    if (currentScale > 1) {
-                        const newTranslateX = e.touches[0].clientX - startX;
-                        const newTranslateY = e.touches[0].clientY - startY;
-                        
-                        const mapWidth = mapImg.offsetWidth;
-                        const mapHeight = mapImg.offsetHeight;
-                        const maxTranslateX = (mapWidth * currentScale - mapWidth) / 2;
-                        const maxTranslateY = (mapHeight * currentScale - mapHeight) / 2;
-                        
-                        translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, newTranslateX));
-                        translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, newTranslateY));
-                        
-                        updateMobileMapTransform();
-                    }
-                } else if (isZooming && e.touches.length === 2) {
-                    e.preventDefault();
-                    const distance = getDistance(e.touches[0], e.touches[1]);
-                    const scaleChange = distance / lastTouchDistance;
-                    const newScale = Math.max(1, Math.min(3, currentScale * scaleChange));
+                    isTwoFinger = true;
                     
-                    if (Math.abs(newScale - currentScale) > 0.01) {
-                        const touchMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-                        const touchMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-                        
-                        translateX = touchMidX - (touchMidX - translateX) * (newScale / currentScale);
-                        translateY = touchMidY - (touchMidY - translateY) * (newScale / currentScale);
-                        currentScale = newScale;
-                        
-                        const mapWidth = mapImg.offsetWidth;
-                        const mapHeight = mapImg.offsetHeight;
-                        const maxTranslateX = (mapWidth * currentScale - mapWidth) / 2;
-                        const maxTranslateY = (mapHeight * currentScale - mapHeight) / 2;
-                        
-                        translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, translateX));
-                        translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, translateY));
-                        
-                        updateMobileMapTransform();
+                    const touchMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                    const touchMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                    const touchDist = getDistance(e.touches[0], e.touches[1]);
+                    
+                    const scaleChange = touchDist / lastTouchDist;
+                    const newScale = Math.max(1, Math.min(3, scale * scaleChange));
+                    
+                    if (newScale !== scale) {
+                        const scaleDiff = newScale / scale;
+                        offsetX = touchMidX - (touchMidX - offsetX) * scaleDiff;
+                        offsetY = touchMidY - (touchMidY - offsetY) * scaleDiff;
+                        scale = newScale;
                     }
-                    lastTouchDistance = distance;
+                    
+                    const dx = touchMidX - lastTouchMidX;
+                    const dy = touchMidY - lastTouchMidY;
+                    offsetX += dx;
+                    offsetY += dy;
+                    
+                    clampOffset();
+                    updateTransform();
+                    
+                    lastTouchDist = touchDist;
+                    lastTouchMidX = touchMidX;
+                    lastTouchMidY = touchMidY;
+                } else if (e.touches.length === 1 && !isTwoFinger) {
+                    e.preventDefault();
+                    
+                    offsetX = e.touches[0].clientX - lastTouchX;
+                    offsetY = e.touches[0].clientY - lastTouchY;
+                    
+                    clampOffset();
+                    updateTransform();
                 }
             });
             
             mobileMapWrapper.addEventListener('touchend', function() {
-                isDragging = false;
-                isZooming = false;
+                if (e.touches.length === 1) {
+                    isTwoFinger = false;
+                    lastTouchX = e.touches[0].clientX - offsetX;
+                    lastTouchY = e.touches[0].clientY - offsetY;
+                } else if (e.touches.length === 0) {
+                    isTwoFinger = false;
+                }
             });
             
             function getDistance(touch1, touch2) {
@@ -1175,30 +1179,48 @@
                 return Math.sqrt(dx * dx + dy * dy);
             }
             
-            function updateMobileMapTransform() {
-                mobileMapWrapper.style.transform = `scale(${currentScale}) translate(${translateX / currentScale}px, ${translateY / currentScale}px)`;
-                updateMobileMarkers();
+            function clampOffset() {
+                const wrapperRect = mobileMapWrapper.getBoundingClientRect();
+                const maxOffsetX = (wrapperRect.width * (scale - 1)) / 2;
+                const maxOffsetY = (wrapperRect.height * (scale - 1)) / 2;
+                
+                offsetX = Math.max(-maxOffsetX, Math.min(maxOffsetX, offsetX));
+                offsetY = Math.max(-maxOffsetY, Math.min(maxOffsetY, offsetY));
             }
             
-            function updateMobileMarkers() {
+            function updateTransform() {
+                mobileMapWrapper.style.transform = `scale(${scale}) translate(${offsetX / scale}px, ${offsetY / scale}px)`;
+                updateMarkers();
+            }
+            
+            function updateMarkers() {
                 const markers = document.querySelectorAll('#mobileMapWrapper .marker');
                 markers.forEach(marker => {
-                    const x = parseFloat(marker.dataset.origX);
-                    const y = parseFloat(marker.dataset.origY);
-                    const markerSize = 16 * currentScale;
+                    const origX = parseFloat(marker.dataset.origX);
+                    const origY = parseFloat(marker.dataset.origY);
+                    const markerSize = 16 * scale;
                     
-                    marker.style.left = (x * currentScale + translateX - markerSize / 2) + 'px';
-                    marker.style.top = (y * currentScale + translateY - markerSize / 2) + 'px';
+                    const screenX = origX * scale + offsetX - markerSize / 2;
+                    const screenY = origY * scale + offsetY - markerSize / 2;
+                    
+                    marker.style.left = screenX + 'px';
+                    marker.style.top = screenY + 'px';
                     marker.style.width = markerSize + 'px';
                     marker.style.height = markerSize + 'px';
                     marker.style.borderRadius = '50%';
                     marker.style.transform = 'none';
+                    
+                    const numberEl = marker.querySelector('.marker-number');
+                    if (numberEl) {
+                        numberEl.style.fontSize = (9 * scale) + 'px';
+                    }
                 });
             }
             
-            window.updateMobileMapScale = function(scale) {
-                currentScale = scale;
-                updateMobileMapTransform();
+            window.mobileMapScale = scale;
+            window.updateMobileMapScale = function(newScale) {
+                scale = newScale;
+                updateTransform();
             };
         }
 
