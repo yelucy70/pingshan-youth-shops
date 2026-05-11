@@ -1246,7 +1246,8 @@
 
         function setupDesktopMapDrag() {
             const mapWrapper = document.getElementById('mapWrapper');
-            if (!mapWrapper) return;
+            const mapContainer = document.querySelector('.desktop-layout .map-container');
+            if (!mapWrapper || !mapContainer) return;
             
             let isDragging = false;
             let startX = 0;
@@ -1255,12 +1256,13 @@
             let offsetY = 0;
             let currentScale = 1;
             
-            mapWrapper.addEventListener('mousedown', function(e) {
-                if (e.button === 0) {
+            mapContainer.addEventListener('mousedown', function(e) {
+                if (e.button === 0 && !isDragging) {
                     isDragging = true;
                     startX = e.clientX - offsetX;
                     startY = e.clientY - offsetY;
                     mapWrapper.style.cursor = 'grabbing';
+                    e.preventDefault();
                 }
             });
             
@@ -1281,8 +1283,14 @@
                 }
             });
             
-            mapWrapper.addEventListener('wheel', function(e) {
-                e.preventDefault();
+            document.addEventListener('mouseleave', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    mapWrapper.style.cursor = 'grab';
+                }
+            });
+            
+            mapContainer.addEventListener('wheel', function(e) {
                 const delta = e.deltaY > 0 ? 0.9 : 1.1;
                 const newScale = Math.max(1, Math.min(3, currentScale * delta));
                 
@@ -1299,7 +1307,13 @@
                     clampDesktopOffset();
                     updateDesktopTransform();
                 }
-            }, { passive: false });
+                
+                if (e.preventDefault) {
+                    e.preventDefault();
+                } else {
+                    e.returnValue = false;
+                }
+            });
             
             function clampDesktopOffset() {
                 const mapImg = document.getElementById('mapImage');
@@ -1307,8 +1321,8 @@
                 
                 const mapWidth = mapImg.offsetWidth * currentScale;
                 const mapHeight = mapImg.offsetHeight * currentScale;
-                const containerWidth = mapWrapper.parentElement.offsetWidth;
-                const containerHeight = mapWrapper.parentElement.offsetHeight;
+                const containerWidth = mapContainer.offsetWidth;
+                const containerHeight = mapContainer.offsetHeight;
                 
                 const maxOffsetX = Math.max(0, mapWidth - containerWidth);
                 const maxOffsetY = Math.max(0, mapHeight - containerHeight);
