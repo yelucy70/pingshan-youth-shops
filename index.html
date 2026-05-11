@@ -1266,7 +1266,7 @@
                 marker.title = shop.name;
                 marker.innerHTML = `<div class="marker-number">${idx + 1}</div>`;
                 marker.onclick = function() {
-                    handleShopClick(shop.id, this);
+                    showShopDetail(shop.id);
                 };
                 wrapper.appendChild(marker);
             });
