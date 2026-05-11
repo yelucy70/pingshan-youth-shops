@@ -136,7 +136,8 @@
         .marker.highlighted {
             background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
             opacity: 1;
-            box-shadow: 0 0 30px rgba(255, 107, 53, 0.9);
+            transform: translate(-50%, -50%) scale(1.5);
+            box-shadow: 0 0 40px rgba(255, 230, 0, 0.8), 0 0 60px rgba(255, 150, 0, 0.5);
         }
         .marker-number {
             position: absolute;
@@ -1487,17 +1488,6 @@
             markers.forEach(marker => {
                 if (marker.classList.contains('marker')) {
                     marker.classList.add('highlighted');
-                    
-                    marker.animate([
-                        { transform: 'scale(1)' },
-                        { transform: 'scale(1.5)' },
-                        { transform: 'scale(1.2)' },
-                        { transform: 'scale(1.5)' },
-                        { transform: 'scale(1.2)' }
-                    ], {
-                        duration: 500,
-                        iterations: 2
-                    });
                 }
             });
             
