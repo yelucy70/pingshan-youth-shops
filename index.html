@@ -105,6 +105,17 @@
             border-radius: 4px;
             font-size: 12px;
         }
+        .shop-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            float: left;
+            margin-right: 12px;
+        }
+        .shop-info {
+            overflow: hidden;
+        }
         .shop-brief {
             font-size: 13px;
             color: #6b7280;
@@ -1169,7 +1180,7 @@
                 }
             });
             
-            mobileMapWrapper.addEventListener('touchend', function() {
+            mobileMapWrapper.addEventListener('touchend', function(e) {
                 if (e.touches.length === 1) {
                     isTwoFinger = false;
                     lastTouchX = e.touches[0].clientX - offsetX;
@@ -1429,11 +1440,15 @@
             list.innerHTML = filtered.map((shop, idx) => {
                 const boldMatch = shop.description.match(/<strong>([^<]+)<\/strong>/);
                 const brief = boldMatch ? boldMatch[1] : shop.description.replace(/<[^>]*>/g, '').substring(0, 80);
+                const imageSrc = shop.images && shop.images.length > 0 ? shop.images[0] : '';
                 return `
                     <div class="shop-item" data-shop-id="${shop.id}" onclick="handleShopClick('${shop.id}', this)">
-                        <div class="shop-name">${idx + 1}. ${shop.name}</div>
-                        <span class="shop-category">${shop.category[0]}</span>
-                        <div class="shop-brief">${brief}</div>
+                        ${imageSrc ? `<img class="shop-image" src="${imageSrc}" alt="${shop.name}" />` : ''}
+                        <div class="shop-info">
+                            <div class="shop-name">${idx + 1}. ${shop.name}</div>
+                            <span class="shop-category">${shop.category[0]}</span>
+                            <div class="shop-brief">${brief}</div>
+                        </div>
                     </div>
                 `;
             }).join('');
