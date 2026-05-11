@@ -1214,19 +1214,7 @@
             }
             
             function clampOffset() {
-                const mapImg = document.getElementById('mobileMapImage');
-                if (!mapImg) return;
-                
-                const mapWidth = mapImg.offsetWidth * scale;
-                const mapHeight = mapImg.offsetHeight * scale;
-                const containerWidth = mobileMapWrapper.parentElement.offsetWidth;
-                const containerHeight = mobileMapWrapper.parentElement.offsetHeight;
-                
-                const maxOffsetX = Math.max(0, (mapWidth - containerWidth) / 2);
-                const maxOffsetY = Math.max(0, (mapHeight - containerHeight) / 2);
-                
-                offsetX = Math.max(-maxOffsetX, Math.min(maxOffsetX, offsetX));
-                offsetY = Math.max(-maxOffsetY, Math.min(maxOffsetY, offsetY));
+                // 不设置边界限制，允许自由拖动
             }
             
             function updateTransform() {
@@ -1316,19 +1304,7 @@
             });
             
             function clampDesktopOffset() {
-                const mapImg = document.getElementById('mapImage');
-                if (!mapImg) return;
-                
-                const mapWidth = mapImg.offsetWidth * currentScale;
-                const mapHeight = mapImg.offsetHeight * currentScale;
-                const containerWidth = mapContainer.offsetWidth;
-                const containerHeight = mapContainer.offsetHeight;
-                
-                const maxOffsetX = Math.max(0, (mapWidth - containerWidth) / 2);
-                const maxOffsetY = Math.max(0, (mapHeight - containerHeight) / 2);
-                
-                offsetX = Math.max(-maxOffsetX, Math.min(maxOffsetX, offsetX));
-                offsetY = Math.max(-maxOffsetY, Math.min(maxOffsetY, offsetY));
+                // 不设置边界限制，允许自由拖动
             }
             
             function updateDesktopTransform() {
