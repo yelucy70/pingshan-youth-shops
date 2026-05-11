@@ -24,6 +24,10 @@
         .map-wrapper {
             position: relative;
             transform-origin: top left;
+            cursor: grab;
+        }
+        .map-wrapper:active {
+            cursor: grabbing;
         }
         .map-wrapper img {
             display: block;
@@ -526,6 +530,18 @@
             height: 300px;
             background: #333;
             position: relative;
+            overflow: hidden;
+            touch-action: none;
+        }
+        .mobile-layout .shop-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            float: left;
+            margin-right: 10px;
+        }
+        .mobile-layout .shop-info {
             overflow: hidden;
         }
         .mobile-layout .filter-tabs {
@@ -1098,6 +1114,7 @@
             };
             
             setupMobileMapZoom();
+            setupDesktopMapDrag();
             
             window.addEventListener('resize', function() {
                 const img1 = document.getElementById('mapImage');
@@ -1205,11 +1222,11 @@
                 const containerWidth = mobileMapWrapper.parentElement.offsetWidth;
                 const containerHeight = mobileMapWrapper.parentElement.offsetHeight;
                 
-                const maxOffsetX = Math.max(0, (mapWidth - containerWidth) / 2);
-                const maxOffsetY = Math.max(0, (mapHeight - containerHeight) / 2);
+                const maxOffsetX = Math.max(0, mapWidth - containerWidth);
+                const maxOffsetY = Math.max(0, mapHeight - containerHeight);
                 
-                offsetX = Math.max(-maxOffsetX, Math.min(maxOffsetX, offsetX));
-                offsetY = Math.max(-maxOffsetY, Math.min(maxOffsetY, offsetY));
+                offsetX = Math.max(0, Math.min(maxOffsetX, offsetX));
+                offsetY = Math.max(0, Math.min(maxOffsetY, offsetY));
             }
             
             function updateTransform() {
@@ -1225,6 +1242,89 @@
             }
             
             window.mobileMapScale = scale;
+        }
+
+        function setupDesktopMapDrag() {
+            const mapWrapper = document.getElementById('mapWrapper');
+            if (!mapWrapper) return;
+            
+            let isDragging = false;
+            let startX = 0;
+            let startY = 0;
+            let offsetX = 0;
+            let offsetY = 0;
+            let currentScale = 1;
+            
+            mapWrapper.addEventListener('mousedown', function(e) {
+                if (e.button === 0) {
+                    isDragging = true;
+                    startX = e.clientX - offsetX;
+                    startY = e.clientY - offsetY;
+                    mapWrapper.style.cursor = 'grabbing';
+                }
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                offsetX = e.clientX - startX;
+                offsetY = e.clientY - startY;
+                
+                clampDesktopOffset();
+                updateDesktopTransform();
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    mapWrapper.style.cursor = 'grab';
+                }
+            });
+            
+            mapWrapper.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                const newScale = Math.max(1, Math.min(3, currentScale * delta));
+                
+                if (newScale !== currentScale) {
+                    const rect = mapWrapper.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const mouseY = e.clientY - rect.top;
+                    
+                    const scaleDiff = newScale / currentScale;
+                    offsetX = mouseX - (mouseX - offsetX) * scaleDiff;
+                    offsetY = mouseY - (mouseY - offsetY) * scaleDiff;
+                    currentScale = newScale;
+                    
+                    clampDesktopOffset();
+                    updateDesktopTransform();
+                }
+            }, { passive: false });
+            
+            function clampDesktopOffset() {
+                const mapImg = document.getElementById('mapImage');
+                if (!mapImg) return;
+                
+                const mapWidth = mapImg.offsetWidth * currentScale;
+                const mapHeight = mapImg.offsetHeight * currentScale;
+                const containerWidth = mapWrapper.parentElement.offsetWidth;
+                const containerHeight = mapWrapper.parentElement.offsetHeight;
+                
+                const maxOffsetX = Math.max(0, mapWidth - containerWidth);
+                const maxOffsetY = Math.max(0, mapHeight - containerHeight);
+                
+                offsetX = Math.max(0, Math.min(maxOffsetX, offsetX));
+                offsetY = Math.max(0, Math.min(maxOffsetY, offsetY));
+            }
+            
+            function updateDesktopTransform() {
+                mapWrapper.style.transform = `scale(${currentScale}) translate(${offsetX / currentScale}px, ${offsetY / currentScale}px)`;
+                
+                const markers = document.querySelectorAll('#mapWrapper .marker');
+                markers.forEach(marker => {
+                    marker.style.transform = `translate(-50%, -50%) scale(${1 / currentScale})`;
+                });
+            }
         }
 
         function getCategories() {
