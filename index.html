@@ -2,8 +2,31 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>坪山区青春小店消费图鉴</title>
+    
+    <!-- 微信分享优化 -->
+    <meta name="description" content="坪山区青春小店消费图鉴 - 发现坪山30家特色小店，探索城市青春消费新地标">
+    <meta name="keywords" content="坪山,青春小店,消费图鉴,美食,咖啡,文创,旅游">
+    
+    <!-- Open Graph 标签 -->
+    <meta property="og:title" content="坪山区青春小店消费图鉴">
+    <meta property="og:description" content="发现坪山30家特色小店，探索城市青春消费新地标">
+    <meta property="og:url" content="https://yelucy70.github.io/pingshan-youth-shops">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://yelucy70.github.io/pingshan-youth-shops/店铺图片/HAKKA%20客咖%20Cafe%26Bar-1.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    
+    <!-- 微信自定义分享标签 -->
+    <meta name="wx:title" content="坪山区青春小店消费图鉴">
+    <meta name="wx:description" content="发现坪山30家特色小店，探索城市青春消费新地标">
+    <meta name="wx:image" content="https://yelucy70.github.io/pingshan-youth-shops/店铺图片/HAKKA%20客咖%20Cafe%26Bar-1.jpg">
+    
+    <!-- 移动端优化 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#667eea">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -466,6 +489,37 @@
             border-top: 1px solid #e5e7eb;
             display: flex;
             justify-content: space-around;
+        }
+        
+        .share-section {
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .share-btn {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+            transition: all 0.2s;
+        }
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .share-btn:active {
+            transform: translateY(0);
+        }
+        .share-icon {
+            font-size: 18px;
         }
         .stat-item {
             text-align: center;
@@ -934,6 +988,13 @@
                     <div class="stat-number" id="totalCats">0</div>
                     <div class="stat-label">个分类</div>
                 </div>
+            </div>
+            
+            <div class="share-section">
+                <button class="share-btn" onclick="shareToWeChat()">
+                    <span class="share-icon">📤</span>
+                    <span class="share-text">分享给朋友</span>
+                </button>
             </div>
         </div>
     </div>
@@ -1719,6 +1780,20 @@
             });
             document.querySelectorAll('.slider-dot').forEach((dot, idx) => {
                 dot.classList.toggle('active', idx === currentImageIndex);
+            });
+        }
+
+        // 分享功能
+        function shareToWeChat() {
+            const shareUrl = window.location.href || 'https://yelucy70.github.io/pingshan-youth-shops';
+            const shareText = '🌸 坪山区青春小店消费图鉴 - 发现身边的30家特色小店';
+            
+            // 尝试复制链接到剪贴板
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert('链接已复制到剪贴板，请打开微信分享给朋友！\n\n链接：' + shareUrl);
+            }).catch(err => {
+                // 如果复制失败，显示链接让用户手动复制
+                alert('分享链接：\n' + shareUrl + '\n\n请复制链接后打开微信分享给朋友');
             });
         }
 
