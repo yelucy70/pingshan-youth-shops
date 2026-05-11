@@ -1094,49 +1094,79 @@
         function setupMobileMapZoom() {
             if (!mobileMapWrapper) return;
             
+            const mapImg = document.getElementById('mobileMapImage');
+            if (!mapImg) return;
+            
             let currentScale = 1;
             let lastTouchDistance = 0;
             let startX = 0;
             let startY = 0;
             let translateX = 0;
             let translateY = 0;
-            let lastTranslateX = 0;
-            let lastTranslateY = 0;
+            let isDragging = false;
+            let isZooming = false;
             
             mobileMapWrapper.addEventListener('touchstart', function(e) {
                 if (e.touches.length === 1) {
-                    startX = e.touches[0].clientX - lastTranslateX;
-                    startY = e.touches[0].clientY - lastTranslateY;
+                    isDragging = true;
+                    isZooming = false;
+                    startX = e.touches[0].clientX - translateX;
+                    startY = e.touches[0].clientY - translateY;
                 } else if (e.touches.length === 2) {
+                    isZooming = true;
+                    isDragging = false;
                     lastTouchDistance = getDistance(e.touches[0], e.touches[1]);
                 }
             });
             
             mobileMapWrapper.addEventListener('touchmove', function(e) {
-                if (e.touches.length === 1) {
+                if (isDragging && e.touches.length === 1) {
                     e.preventDefault();
                     if (currentScale > 1) {
-                        translateX = e.touches[0].clientX - startX;
-                        translateY = e.touches[0].clientY - startY;
-                        translateX = Math.max(-(mobileMapWrapper.offsetWidth * (currentScale - 1)), Math.min(0, translateX));
-                        translateY = Math.max(-(mobileMapWrapper.offsetHeight * (currentScale - 1)), Math.min(0, translateY));
+                        const newTranslateX = e.touches[0].clientX - startX;
+                        const newTranslateY = e.touches[0].clientY - startY;
+                        
+                        const mapWidth = mapImg.offsetWidth;
+                        const mapHeight = mapImg.offsetHeight;
+                        const maxTranslateX = (mapWidth * currentScale - mapWidth) / 2;
+                        const maxTranslateY = (mapHeight * currentScale - mapHeight) / 2;
+                        
+                        translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, newTranslateX));
+                        translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, newTranslateY));
+                        
                         updateMobileMapTransform();
                     }
-                } else if (e.touches.length === 2) {
+                } else if (isZooming && e.touches.length === 2) {
                     e.preventDefault();
                     const distance = getDistance(e.touches[0], e.touches[1]);
                     const scaleChange = distance / lastTouchDistance;
                     const newScale = Math.max(1, Math.min(3, currentScale * scaleChange));
-                    if (newScale !== currentScale) {
+                    
+                    if (Math.abs(newScale - currentScale) > 0.01) {
                         const touchMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
                         const touchMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                        
                         translateX = touchMidX - (touchMidX - translateX) * (newScale / currentScale);
                         translateY = touchMidY - (touchMidY - translateY) * (newScale / currentScale);
                         currentScale = newScale;
+                        
+                        const mapWidth = mapImg.offsetWidth;
+                        const mapHeight = mapImg.offsetHeight;
+                        const maxTranslateX = (mapWidth * currentScale - mapWidth) / 2;
+                        const maxTranslateY = (mapHeight * currentScale - mapHeight) / 2;
+                        
+                        translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, translateX));
+                        translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, translateY));
+                        
                         updateMobileMapTransform();
                     }
                     lastTouchDistance = distance;
                 }
+            });
+            
+            mobileMapWrapper.addEventListener('touchend', function() {
+                isDragging = false;
+                isZooming = false;
             });
             
             function getDistance(touch1, touch2) {
@@ -1155,12 +1185,21 @@
                 markers.forEach(marker => {
                     const x = parseFloat(marker.dataset.origX);
                     const y = parseFloat(marker.dataset.origY);
-                    marker.style.left = (x * currentScale + translateX) + 'px';
-                    marker.style.top = (y * currentScale + translateY) + 'px';
-                    marker.style.width = (16 * currentScale) + 'px';
-                    marker.style.height = (16 * currentScale) + 'px';
+                    const markerSize = 16 * currentScale;
+                    
+                    marker.style.left = (x * currentScale + translateX - markerSize / 2) + 'px';
+                    marker.style.top = (y * currentScale + translateY - markerSize / 2) + 'px';
+                    marker.style.width = markerSize + 'px';
+                    marker.style.height = markerSize + 'px';
+                    marker.style.borderRadius = '50%';
+                    marker.style.transform = 'none';
                 });
             }
+            
+            window.updateMobileMapScale = function(scale) {
+                currentScale = scale;
+                updateMobileMapTransform();
+            };
         }
 
         function getCategories() {
@@ -1209,6 +1248,7 @@
                 marker.style.top = y + 'px';
                 marker.dataset.origX = x;
                 marker.dataset.origY = y;
+                marker.dataset.shopId = shop.id;
                 marker.title = shop.name;
                 marker.innerHTML = `<div class="marker-number">${idx + 1}</div>`;
                 marker.onclick = function() {
