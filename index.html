@@ -1203,34 +1203,17 @@
             
             function updateTransform() {
                 mobileMapWrapper.style.transform = `scale(${scale}) translate(${offsetX / scale}px, ${offsetY / scale}px)`;
-                updateMarkers();
+                updateMarkersSize();
             }
             
-            function updateMarkers() {
+            function updateMarkersSize() {
                 const markers = document.querySelectorAll('#mobileMapWrapper .marker');
-                const mapImg = document.getElementById('mobileMapImage');
-                if (!mapImg || !mapImg.naturalWidth) return;
-                
-                const mapScale = mapImg.offsetWidth / mapImg.naturalWidth;
-                
                 markers.forEach(marker => {
-                    const origX = parseFloat(marker.dataset.origX);
-                    const origY = parseFloat(marker.dataset.origY);
-                    
-                    const baseX = origX * mapScale;
-                    const baseY = origY * mapScale;
-                    
-                    const screenX = baseX * scale + offsetX;
-                    const screenY = baseY * scale + offsetY;
-                    
-                    marker.style.left = screenX + 'px';
-                    marker.style.top = screenY + 'px';
-                    marker.style.transform = 'translate(-50%, -50%)';
+                    marker.style.transform = `translate(-50%, -50%) scale(${1 / scale})`;
                 });
             }
             
             window.mobileMapScale = scale;
-            window.updateMobileMarkers = updateMarkers;
         }
 
         function getCategories() {
