@@ -514,6 +514,19 @@
         .mobile-layout .map-container {
             height: 300px;
             background: #333;
+            position: relative;
+            overflow: hidden;
+        }
+        .markers-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .markers-layer .marker {
+            pointer-events: auto;
         }
         .mobile-layout .filter-tabs {
             padding: 10px;
@@ -623,6 +636,7 @@
             <div class="map-wrapper" id="mobileMapWrapper">
                 <img id="mobileMapImage" src="坪山区青春小店消费图鉴地图.jpg" alt="坪山区青春小店消费图鉴">
             </div>
+            <div class="markers-layer" id="mobileMarkersLayer"></div>
         </div>
         
         <div class="filter-tabs" id="mobileFilterTabs">
@@ -1103,9 +1117,6 @@
         function setupMobileMapZoom() {
             if (!mobileMapWrapper) return;
             
-            const mapImg = document.getElementById('mobileMapImage');
-            if (!mapImg) return;
-            
             let scale = 1;
             let offsetX = 0;
             let offsetY = 0;
@@ -1197,41 +1208,9 @@
             
             function updateTransform() {
                 mobileMapWrapper.style.transform = `scale(${scale}) translate(${offsetX / scale}px, ${offsetY / scale}px)`;
-                updateMarkers();
-            }
-            
-            function updateMarkers() {
-                const markers = document.querySelectorAll('#mobileMapWrapper .marker');
-                markers.forEach(marker => {
-                    const origX = parseFloat(marker.dataset.origX);
-                    const origY = parseFloat(marker.dataset.origY);
-                    const markerSize = 16 * scale;
-                    
-                    const scaledX = origX * scale;
-                    const scaledY = origY * scale;
-                    
-                    const screenX = scaledX + offsetX;
-                    const screenY = scaledY + offsetY;
-                    
-                    marker.style.left = screenX + 'px';
-                    marker.style.top = screenY + 'px';
-                    marker.style.width = markerSize + 'px';
-                    marker.style.height = markerSize + 'px';
-                    marker.style.borderRadius = '50%';
-                    marker.style.transform = `translate(-50%, -50%)`;
-                    
-                    const numberEl = marker.querySelector('.marker-number');
-                    if (numberEl) {
-                        numberEl.style.fontSize = (9 * scale) + 'px';
-                    }
-                });
             }
             
             window.mobileMapScale = scale;
-            window.updateMobileMapScale = function(newScale) {
-                scale = newScale;
-                updateTransform();
-            };
         }
 
         function getCategories() {
@@ -1262,7 +1241,10 @@
         }
 
         function renderMarkers(type) {
-            const wrapper = document.getElementById(type === 'desktop' ? 'mapWrapper' : 'mobileMapWrapper');
+            const wrapper = type === 'desktop' 
+                ? document.getElementById('mapWrapper') 
+                : document.getElementById('mobileMarkersLayer');
+            
             const existingMarkers = wrapper.querySelectorAll('.marker');
             existingMarkers.forEach(m => m.remove());
             
