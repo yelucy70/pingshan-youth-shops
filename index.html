@@ -1443,6 +1443,10 @@
         let clickTimer = null;
         
         function handleShopClick(shopId, element) {
+            document.querySelectorAll('.marker.highlighted, .shop-item.active').forEach(el => {
+                el.classList.remove('highlighted', 'active');
+            });
+            
             if (clickedShopId === shopId) {
                 showShopDetail(shopId);
                 clickedShopId = null;
@@ -1462,7 +1466,7 @@
                 marker.classList.remove('highlighted', 'active');
             });
             
-            document.querySelectorAll(`[data-shop-id="${shopId}"]`).forEach(el => {
+            document.querySelectorAll('.shop-item.active').forEach(el => {
                 el.classList.remove('active');
             });
             
