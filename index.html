@@ -1222,11 +1222,11 @@
                 const containerWidth = mobileMapWrapper.parentElement.offsetWidth;
                 const containerHeight = mobileMapWrapper.parentElement.offsetHeight;
                 
-                const maxOffsetX = Math.max(0, mapWidth - containerWidth);
-                const maxOffsetY = Math.max(0, mapHeight - containerHeight);
+                const maxOffsetX = Math.max(0, (mapWidth - containerWidth) / 2);
+                const maxOffsetY = Math.max(0, (mapHeight - containerHeight) / 2);
                 
-                offsetX = Math.max(0, Math.min(maxOffsetX, offsetX));
-                offsetY = Math.max(0, Math.min(maxOffsetY, offsetY));
+                offsetX = Math.max(-maxOffsetX, Math.min(maxOffsetX, offsetX));
+                offsetY = Math.max(-maxOffsetY, Math.min(maxOffsetY, offsetY));
             }
             
             function updateTransform() {
@@ -1324,11 +1324,11 @@
                 const containerWidth = mapContainer.offsetWidth;
                 const containerHeight = mapContainer.offsetHeight;
                 
-                const maxOffsetX = Math.max(0, mapWidth - containerWidth);
-                const maxOffsetY = Math.max(0, mapHeight - containerHeight);
+                const maxOffsetX = Math.max(0, (mapWidth - containerWidth) / 2);
+                const maxOffsetY = Math.max(0, (mapHeight - containerHeight) / 2);
                 
-                offsetX = Math.max(0, Math.min(maxOffsetX, offsetX));
-                offsetY = Math.max(0, Math.min(maxOffsetY, offsetY));
+                offsetX = Math.max(-maxOffsetX, Math.min(maxOffsetX, offsetX));
+                offsetY = Math.max(-maxOffsetY, Math.min(maxOffsetY, offsetY));
             }
             
             function updateDesktopTransform() {
