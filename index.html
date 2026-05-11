@@ -132,6 +132,10 @@
             transform: translate(-50%, -50%) scale(1.3);
             box-shadow: 0 0 20px rgba(255,0,128,0.6);
         }
+        .marker.highlighted {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 0 25px rgba(102, 126, 234, 0.8);
+        }
         .marker-number {
             position: absolute;
             top: 50%;
@@ -1200,15 +1204,18 @@
                     const origY = parseFloat(marker.dataset.origY);
                     const markerSize = 16 * scale;
                     
-                    const screenX = origX * scale + offsetX - markerSize / 2;
-                    const screenY = origY * scale + offsetY - markerSize / 2;
+                    const scaledX = origX * scale;
+                    const scaledY = origY * scale;
+                    
+                    const screenX = scaledX + offsetX;
+                    const screenY = scaledY + offsetY;
                     
                     marker.style.left = screenX + 'px';
                     marker.style.top = screenY + 'px';
                     marker.style.width = markerSize + 'px';
                     marker.style.height = markerSize + 'px';
                     marker.style.borderRadius = '50%';
-                    marker.style.transform = 'none';
+                    marker.style.transform = `translate(-50%, -50%)`;
                     
                     const numberEl = marker.querySelector('.marker-number');
                     if (numberEl) {
@@ -1268,13 +1275,13 @@
                 const y = shop.mapPosition.y * scale;
                 marker.style.left = x + 'px';
                 marker.style.top = y + 'px';
-                marker.dataset.origX = x;
-                marker.dataset.origY = y;
+                marker.dataset.origX = shop.mapPosition.x * scale;
+                marker.dataset.origY = shop.mapPosition.y * scale;
                 marker.dataset.shopId = shop.id;
                 marker.title = shop.name;
                 marker.innerHTML = `<div class="marker-number">${idx + 1}</div>`;
                 marker.onclick = function() {
-                    showShopDetail(shop.id);
+                    handleShopClick(shop.id, this);
                 };
                 wrapper.appendChild(marker);
             });
@@ -1435,9 +1442,10 @@
             }
             
             list.innerHTML = filtered.map((shop, idx) => {
-                const brief = shop.description.replace(/<[^>]*>/g, '').substring(0, 80) + '...';
+                const boldMatch = shop.description.match(/<strong>([^<]+)<\/strong>/);
+                const brief = boldMatch ? boldMatch[1] : shop.description.replace(/<[^>]*>/g, '').substring(0, 80);
                 return `
-                    <div class="shop-item" data-shop-id="${shop.id}" onclick="showShopDetail('${shop.id}')">
+                    <div class="shop-item" data-shop-id="${shop.id}" onclick="handleShopClick('${shop.id}', this)">
                         <div class="shop-name">${idx + 1}. ${shop.name}</div>
                         <span class="shop-category">${shop.category[0]}</span>
                         <div class="shop-brief">${brief}</div>
@@ -1446,6 +1454,59 @@
             }).join('');
         }
 
+        let clickedShopId = null;
+        let clickTimer = null;
+        
+        function handleShopClick(shopId, element) {
+            if (clickedShopId === shopId) {
+                showShopDetail(shopId);
+                clickedShopId = null;
+            } else {
+                clearTimeout(clickTimer);
+                clickedShopId = shopId;
+                highlightMarker(shopId);
+                
+                clickTimer = setTimeout(() => {
+                    clickedShopId = null;
+                }, 2000);
+            }
+        }
+        
+        function highlightMarker(shopId) {
+            document.querySelectorAll('.marker').forEach(marker => {
+                marker.classList.remove('highlighted', 'active');
+            });
+            
+            document.querySelectorAll(`[data-shop-id="${shopId}"]`).forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            const markers = document.querySelectorAll(`[data-shop-id="${shopId}"]`);
+            markers.forEach(marker => {
+                if (marker.classList.contains('marker')) {
+                    marker.classList.add('highlighted');
+                    
+                    marker.animate([
+                        { transform: 'scale(1)' },
+                        { transform: 'scale(1.5)' },
+                        { transform: 'scale(1.2)' },
+                        { transform: 'scale(1.5)' },
+                        { transform: 'scale(1.2)' }
+                    ], {
+                        duration: 500,
+                        iterations: 2
+                    });
+                }
+            });
+            
+            const listItems = document.querySelectorAll(`[data-shop-id="${shopId}"]`);
+            listItems.forEach(item => {
+                if (!item.classList.contains('marker')) {
+                    item.classList.add('active');
+                }
+            });
+        }
+        
         document.addEventListener('DOMContentLoaded', init);
         </script>
 </body>
