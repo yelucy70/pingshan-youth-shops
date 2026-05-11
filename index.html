@@ -116,9 +116,15 @@
             border-radius: 8px;
             float: left;
             margin-right: 12px;
+            display: block;
         }
         .shop-info {
             overflow: hidden;
+        }
+        .mobile-layout .shop-image {
+            width: 60px;
+            height: 60px;
+            display: block;
         }
         .shop-brief {
             font-size: 13px;
@@ -533,17 +539,6 @@
             overflow: hidden;
             touch-action: none;
         }
-        .mobile-layout .shop-image {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 6px;
-            float: left;
-            margin-right: 10px;
-        }
-        .mobile-layout .shop-info {
-            overflow: hidden;
-        }
         .mobile-layout .filter-tabs {
             padding: 10px;
             gap: 6px;
@@ -598,6 +593,11 @@
             }
             .image-slider {
                 height: 200px;
+            }
+            .slider-image {
+                display: block !important;
+                width: 100% !important;
+                height: 100% !important;
             }
         }
         @media screen and (min-width: 769px) {
