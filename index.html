@@ -1342,6 +1342,16 @@
                 };
                 container.appendChild(tab);
             });
+            
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.onclick = function() {
+                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.category;
+                    renderShopList(type);
+                    renderMarkers(type);
+                };
+            });
         }
 
         function renderMarkers(type) {
