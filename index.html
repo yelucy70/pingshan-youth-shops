@@ -1333,25 +1333,23 @@
                 tab.className = 'filter-tab';
                 tab.textContent = cat;
                 tab.dataset.category = cat;
-                tab.onclick = function() {
-                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    currentFilter = this.dataset.category;
-                    renderShopList(type);
-                    renderMarkers(type);
-                };
+                tab.onclick = handleFilterClick;
                 container.appendChild(tab);
             });
             
             document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.onclick = function() {
-                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    currentFilter = this.dataset.category;
-                    renderShopList(type);
-                    renderMarkers(type);
-                };
+                tab.onclick = handleFilterClick;
             });
+        }
+        
+        function handleFilterClick() {
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter = this.dataset.category;
+            renderShopList('desktop');
+            renderMarkers('desktop');
+            renderShopList('mobile');
+            renderMarkers('mobile');
         }
 
         function renderMarkers(type) {
